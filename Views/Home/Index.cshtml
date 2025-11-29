@@ -1,0 +1,490 @@
+﻿@{
+    ViewData["Title"] = "Missão SEBRAE";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --hover-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        /* Estilos Base */
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 10% 20%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+                animation: floatBackground 20s ease-in-out infinite;
+            }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        /* Cards de Ação */
+        .action-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .action-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--primary-gradient);
+                transform: scaleX(0);
+                transition: transform 0.3s ease;
+            }
+
+            .action-card:hover::before {
+                transform: scaleX(1);
+            }
+
+            .action-card:hover {
+                transform: translateY(-15px) scale(1.05);
+                box-shadow: var(--hover-shadow);
+                background: white;
+            }
+
+        /* Ícones */
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+        }
+
+        .action-card:hover .feature-icon {
+            transform: scale(1.2) rotate(10deg);
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.3));
+        }
+
+        /* Botões */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+            .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+            }
+
+        .btn-warning {
+            background: var(--warning-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+        }
+
+            .btn-warning:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+            }
+
+        .btn-info {
+            background: var(--info-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+            color: #003d7a;
+        }
+
+            .btn-info:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(168, 237, 234, 0.4);
+                color: #003d7a;
+            }
+
+        /* Animações */
+        @@keyframes floatBackground {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.02);
+            }
+        }
+
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @@keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Efeito de Brilho nos Cards */
+        .action-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .action-card:hover::after {
+            opacity: 1;
+            animation: shine 1.5s ease-in-out;
+        }
+
+        @@keyframes shine {
+            0% {
+                transform: rotate(45deg) translateX(-100%);
+            }
+
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.25rem;
+            }
+
+            .feature-icon {
+                font-size: 3rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .feature-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Grid de Cards */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        @@media (max-width: 1200px) {
+            .actions-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .actions-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-10 mx-auto text-center hero-content">
+                    <h1 class="hero-title animate-pop">
+                        🎯 Missão SEBRAE
+                    </h1>
+                    <p class="hero-subtitle animate-slide-up">
+                        Descubra soluções inovadoras para desafios empreendedores.<br>
+                        Uma jornada de aprendizado e competição para equipes!
+                    </p>
+
+                    <!-- Grid de Ações -->
+                    <div class="actions-grid mt-5">
+                        <!-- Card Participante -->
+                        <a href="@Url.Action("RoomAccess")" class="text-decoration-none">
+                            <div class="card action-card h-100 animate-slide-up">
+                                <div class="card-body p-5 text-center">
+                                    <div class="feature-icon animate-bounce">👥</div>
+                                    <h3 class="card-title h2 text-primary mb-3 fw-bold">Participante</h3>
+                                    <p class="card-text text-muted mb-4">
+                                        Entre em uma sala existente usando o código fornecido pelo facilitador e participe da competição.
+                                    </p>
+                                    <div class="btn btn-primary btn-lg px-4">
+                                        <i class="fas fa-sign-in-alt me-2"></i>
+                                        Entrar na Sala
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Card Facilitador -->
+                        <a href="@Url.Action("FacilitatorLogin")" class="text-decoration-none">
+                            <div class="card action-card h-100 animate-slide-up">
+                                <div class="card-body p-5 text-center">
+                                    <div class="feature-icon animate-bounce">🎮</div>
+                                    <h3 class="card-title h2 text-success mb-3 fw-bold">Facilitador</h3>
+                                    <p class="card-text text-muted mb-4">
+                                        Crie e gerencie salas de jogo, acompanhe o progresso das equipes e conduza a experiência de aprendizado.
+                                    </p>
+                                    <div class="btn btn-success btn-lg px-4">
+                                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                                        Acessar Painel
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Card Portfólio -->
+                        <a href="@Url.Action("Index", "Portfolio")" class="text-decoration-none">
+                            <div class="card action-card h-100 animate-slide-up">
+                                <div class="card-body p-5 text-center">
+                                    <div class="feature-icon animate-bounce">📚</div>
+                                    <h3 class="card-title h2 text-warning mb-3 fw-bold">Portfólio</h3>
+                                    <p class="card-text text-muted mb-4">
+                                        Explore todas as soluções e capacitações disponíveis no catálogo completo do SEBRAE.
+                                    </p>
+                                    <div class="btn btn-warning btn-lg px-4">
+                                        <i class="fas fa-book-open me-2"></i>
+                                        Ver Soluções
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Card Tutorial -->
+                        <a href="@Url.Action("Index", "Tutorial")" class="text-decoration-none">
+                            <div class="card action-card h-100 animate-slide-up">
+                                <div class="card-body p-5 text-center">
+                                    <div class="feature-icon animate-bounce">📖</div>
+                                    <h3 class="card-title h2 text-info mb-3 fw-bold">Tutorial</h3>
+                                    <p class="card-text text-muted mb-4">
+                                        Aprenda como funciona o jogo, regras, dicas e tutoriais para facilitadores e participantes.
+                                    </p>
+                                    <div class="btn btn-info btn-lg px-4">
+                                        <i class="fas fa-graduation-cap me-2"></i>
+                                        Aprender a Jogar
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Informações Adicionais -->
+                    <div class="row mt-5 animate-slide-up">
+                        <div class="col-md-3">
+                            <div class="text-center text-white-50 mb-3">
+                                <i class="fas fa-users fs-1 mb-2"></i>
+                                <h5>Equipes Competitivas</h5>
+                                <p class="small">Trabalhe em equipe para resolver desafios</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center text-white-50 mb-3">
+                                <i class="fas fa-trophy fs-1 mb-2"></i>
+                                <h5>Ranking em Tempo Real</h5>
+                                <p class="small">Acompanhe sua posição na competição</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center text-white-50 mb-3">
+                                <i class="fas fa-graduation-cap fs-1 mb-2"></i>
+                                <h5>Aprendizado Prático</h5>
+                                <p class="small">Conhecimento aplicado em casos reais</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center text-white-50 mb-3">
+                                <i class="fas fa-book fs-1 mb-2"></i>
+                                <h5>Tutorial Completo</h5>
+                                <p class="small">Guia completo para todos os jogadores</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        // Efeito de digitação no título
+        document.addEventListener('DOMContentLoaded', function() {
+            const title = document.querySelector('.hero-title');
+            const originalText = title.textContent;
+            title.textContent = '';
+
+            let i = 0;
+            function typeWriter() {
+                if (i < originalText.length) {
+                    title.textContent += originalText.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                }
+            }
+
+            setTimeout(typeWriter, 500);
+        });
+    </script>
+</body>
+</html>

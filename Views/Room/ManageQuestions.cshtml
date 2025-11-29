@@ -1,0 +1,761 @@
+﻿@using ApplicationSebrae.ViewModels
+@model ManageQuestionsViewModel
+@{
+    ViewData["Title"] = "Gerenciar Perguntas - " + Model.RoomName;
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+        }
+
+        .main-card {
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .question-card {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+            .question-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                border-color: #667eea;
+            }
+
+        .alternative-item {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+            .alternative-item.correct {
+                background: #d1fae5;
+                border-color: #10b981;
+            }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 12px;
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            border: none;
+            border-radius: 12px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            }
+
+        .badge-correct {
+            background: #10b981;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            border: 2px dashed #cbd5e1;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+        }
+
+        .checkbox-option {
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+            .checkbox-option:hover {
+                border-color: #667eea;
+                background: #f8f9fa;
+            }
+
+            .checkbox-option input:checked ~ label {
+                color: #10b981;
+                font-weight: 600;
+            }
+    </style>
+</head>
+<body>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999;">
+            <div class="alert alert-warning alert-dismissible fade show shadow-lg" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Atenção!</strong> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999;">
+            <div class="alert alert-success alert-dismissible fade show shadow-lg" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Sucesso!</strong> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    }
+
+    <div class="container-fluid py-4">
+        <div class="main-card p-4 mb-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h1 fw-bold text-primary mb-1">📝 Gerenciar Perguntas</h2>
+                    <p class="text-muted mb-0">Sala: @Model.RoomName | Código: @Model.RoomCode</p>
+                </div>
+                <div>
+                    <button class="btn btn-success btn-lg me-2" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+                        <i class="fas fa-plus me-2"></i>Nova Pergunta
+                    </button>
+                    <a href="@Url.Action("FacilitatorGame", "Home", new { roomCode = Model.RoomCode })"
+                       class="btn btn-primary btn-lg" id="btn-go-to-game">
+                        <i class="fas fa-gamepad me-2"></i>Ir para o Jogo
+                    </a>
+                </div>
+            </div>
+
+            <!-- Status Alert -->
+            <div id="status-alert" class="alert alert-warning" style="display: none;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Atenção:</strong> É necessário criar pelo menos 6 perguntas antes de iniciar a investigação.
+            </div>
+
+            <!-- Lista de Perguntas -->
+            <div id="questions-container">
+                @if (!Model.HasQuestions)
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-question-circle fa-4x text-muted mb-3"></i>
+                        <h3 class="text-muted">Nenhuma pergunta cadastrada</h3>
+                        <p class="text-muted">Comece criando a primeira pergunta para sua sala (mínimo 6 perguntas)</p>
+                        <button class="btn btn-primary btn-lg mt-3" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+                            <i class="fas fa-plus me-2"></i>Criar Primeira Pergunta
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <!-- As perguntas serão carregadas dinamicamente via JavaScript -->
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Pergunta -->
+    <div class="modal fade" id="addQuestionModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-plus me-2"></i>Nova Pergunta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-question-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Título *</label>
+                                <input type="text" class="form-control" id="question-title" required
+                                       placeholder="Ex: Maria, a Artesã Empreendedora">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Nome do Personagem</label>
+                                <input type="text" class="form-control" id="question-name"
+                                       placeholder="Ex: Maria Silva">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Descrição *</label>
+                            <textarea class="form-control" id="question-description" rows="3" required
+                                      placeholder="Descreva a situação do empreendedor"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Desafio *</label>
+                            <textarea class="form-control" id="question-challenge" rows="2" required
+                                      placeholder="Qual é o principal desafio?"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Objetivo *</label>
+                            <textarea class="form-control" id="question-objective" rows="2" required
+                                      placeholder="O que precisa ser alcançado?"></textarea>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-3">📋 Alternativas (mínimo 6, máximo 3 corretas)</h5>
+                        <div id="alternatives-container">
+                            <div class="alternative-input mb-3">
+                                <label class="form-label">Alternativa 1</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control alternative-text" required
+                                           placeholder="Digite a alternativa">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" class="form-check-input me-2 correct-answer-check" value="0">
+                                        <label class="form-check-label">Correta</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary mb-4" onclick="addAlternativeInput()">
+                            <i class="fas fa-plus me-2"></i>Adicionar Alternativa
+                        </button>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Explicação</label>
+                            <textarea class="form-control" id="question-explanation" rows="2"
+                                      placeholder="Explique por que essas são as respostas corretas"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="saveQuestion()">
+                        <i class="fas fa-check me-2"></i>Salvar Pergunta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Pergunta -->
+    <div class="modal fade" id="editQuestionModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-edit me-2"></i>Editar Pergunta
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-question-form">
+                        <input type="hidden" id="edit-question-index">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Título *</label>
+                                <input type="text" class="form-control" id="edit-question-title" required
+                                       placeholder="Ex: Maria, a Artesã Empreendedora">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Nome do Personagem</label>
+                                <input type="text" class="form-control" id="edit-question-name"
+                                       placeholder="Ex: Maria Silva">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Descrição *</label>
+                            <textarea class="form-control" id="edit-question-description" rows="3" required
+                                      placeholder="Descreva a situação do empreendedor"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Desafio *</label>
+                            <textarea class="form-control" id="edit-question-challenge" rows="2" required
+                                      placeholder="Qual é o principal desafio?"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Objetivo *</label>
+                            <textarea class="form-control" id="edit-question-objective" rows="2" required
+                                      placeholder="O que precisa ser alcançado?"></textarea>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-3">📋 Alternativas (mínimo 6, máximo 3 corretas)</h5>
+                        <div id="edit-alternatives-container">
+                            <!-- As alternativas serão carregadas dinamicamente -->
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary mb-4" onclick="addEditAlternativeInput()">
+                            <i class="fas fa-plus me-2"></i>Adicionar Alternativa
+                        </button>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Explicação</label>
+                            <textarea class="form-control" id="edit-question-explanation" rows="2"
+                                      placeholder="Explique por que essas são as respostas corretas"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="updateQuestion()">
+                        <i class="fas fa-save me-2"></i>Atualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">Missão SEBRAE</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const roomCode = '@Model.RoomCode';
+        let alternativeCounter = 1;
+        let editAlternativeCounter = 1;
+
+        // Carregar perguntas ao iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestions();
+            checkCanStartGame();
+
+            // Inicializar alternativas padrão (6 mínimo)
+            for (let i = 1; i < 6; i++) {
+                addAlternativeInput();
+            }
+
+            // Configurar event listeners para modais
+            setupModalEvents();
+        });
+
+        // Configurar eventos dos modais
+        function setupModalEvents() {
+            // Limpar backdrops quando modais forem fechados
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    cleanupBackdrops();
+                });
+            });
+
+            // Resetar formulário quando modal de adicionar for fechado
+            const addModal = document.getElementById('addQuestionModal');
+            addModal.addEventListener('hidden.bs.modal', function() {
+                document.getElementById('add-question-form').reset();
+                resetAlternatives();
+            });
+        }
+
+        // Função dedicada para limpar backdrops
+        function cleanupBackdrops() {
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+
+            // Resetar body
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+
+        function resetAlternatives() {
+            const container = document.getElementById('alternatives-container');
+            container.innerHTML = `
+                <div class="alternative-input mb-3">
+                    <label class="form-label">Alternativa 1</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control alternative-text" required
+                               placeholder="Digite a alternativa">
+                        <div class="input-group-text">
+                            <input type="checkbox" class="form-check-input me-2 correct-answer-check" value="0">
+                            <label class="form-check-label">Correta</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            alternativeCounter = 1;
+
+            // Adicionar 5 alternativas para completar 6
+            for (let i = 1; i < 6; i++) {
+                addAlternativeInput();
+            }
+        }
+
+        function addAlternativeInput() {
+            alternativeCounter++;
+            const container = document.getElementById('alternatives-container');
+            const html = `
+                <div class="alternative-input mb-3">
+                    <label class="form-label">Alternativa ${alternativeCounter}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control alternative-text" required
+                               placeholder="Digite a alternativa">
+                        <div class="input-group-text">
+                            <input type="checkbox" class="form-check-input me-2 correct-answer-check" value="${alternativeCounter - 1}">
+                            <label class="form-check-label">Correta</label>
+                        </div>
+                        ${alternativeCounter > 6 ? `
+                        <button class="btn btn-outline-danger" type="button" onclick="this.closest('.alternative-input').remove(); updateAlternativeIndexes();">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function addEditAlternativeInput() {
+            editAlternativeCounter++;
+            const container = document.getElementById('edit-alternatives-container');
+            const html = `
+                <div class="alternative-input mb-3">
+                    <label class="form-label">Alternativa ${editAlternativeCounter}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control edit-alternative-text" required
+                               placeholder="Digite a alternativa">
+                        <div class="input-group-text">
+                            <input type="checkbox" class="form-check-input me-2 edit-correct-answer-check" value="${editAlternativeCounter - 1}">
+                            <label class="form-check-label">Correta</label>
+                        </div>
+                        ${editAlternativeCounter > 6 ? `
+                        <button class="btn btn-outline-danger" type="button" onclick="this.closest('.alternative-input').remove(); updateEditAlternativeIndexes();">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function updateAlternativeIndexes() {
+            const alternatives = document.querySelectorAll('.alternative-input');
+            alternatives.forEach((alt, index) => {
+                const label = alt.querySelector('.form-label');
+                const checkbox = alt.querySelector('.correct-answer-check');
+                label.textContent = `Alternativa ${index + 1}`;
+                checkbox.value = index;
+            });
+            alternativeCounter = alternatives.length;
+        }
+
+        function updateEditAlternativeIndexes() {
+            const alternatives = document.querySelectorAll('#edit-alternatives-container .alternative-input');
+            alternatives.forEach((alt, index) => {
+                const label = alt.querySelector('.form-label');
+                const checkbox = alt.querySelector('.edit-correct-answer-check');
+                label.textContent = `Alternativa ${index + 1}`;
+                checkbox.value = index;
+            });
+            editAlternativeCounter = alternatives.length;
+        }
+
+        async function saveQuestion() {
+            const title = document.getElementById('question-title').value.trim();
+            const name = document.getElementById('question-name').value.trim();
+            const description = document.getElementById('question-description').value.trim();
+            const challenge = document.getElementById('question-challenge').value.trim();
+            const objective = document.getElementById('question-objective').value.trim();
+            const explanation = document.getElementById('question-explanation').value.trim();
+
+            if (!title || !description || !challenge || !objective) {
+                showNotification('Preencha todos os campos obrigatórios', 'warning');
+                return;
+            }
+
+            const alternatives = [];
+            const correctAnswers = [];
+
+            document.querySelectorAll('.alternative-text').forEach((input, index) => {
+                const text = input.value.trim();
+                if (text) {
+                    alternatives.push(text);
+                }
+            });
+
+            document.querySelectorAll('.correct-answer-check:checked').forEach(checkbox => {
+                correctAnswers.push(parseInt(checkbox.value));
+            });
+
+            if (alternatives.length < 6) {
+                showNotification('Adicione pelo menos 6 alternativas', 'warning');
+                return;
+            }
+
+            if (correctAnswers.length === 0) {
+                showNotification('Selecione pelo menos uma resposta correta', 'warning');
+                return;
+            }
+
+            if (correctAnswers.length > 3) {
+                showNotification('Selecione no máximo 3 respostas corretas', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Room/AddQuestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomCode: roomCode,
+                        title: title,
+                        name: name,
+                        description: description,
+                        challenge: challenge,
+                        objective: objective,
+                        alternatives: alternatives,
+                        correctAnswers: correctAnswers,
+                        explanation: explanation
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.message, 'success');
+
+                    // Fechar o modal corretamente
+                    const modalElement = document.getElementById('addQuestionModal');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    cleanupBackdrops();
+
+                    loadQuestions();
+                    checkCanStartGame();
+                } else {
+                    showNotification(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('Erro ao salvar pergunta', 'danger');
+            }
+        }
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch(`/Room/GetQuestions?roomCode=${roomCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderQuestions(data.questions);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar perguntas:', error);
+            }
+        }
+
+        function renderQuestions(questions) {
+            const container = document.getElementById('questions-container');
+
+            if (questions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-question-circle fa-4x text-muted mb-3"></i>
+                        <h3 class="text-muted">Nenhuma pergunta cadastrada</h3>
+                        <p class="text-muted">Comece criando a primeira pergunta para sua sala (mínimo 6 perguntas)</p>
+                        <button class="btn btn-primary btn-lg mt-3" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+                            <i class="fas fa-plus me-2"></i>Criar Primeira Pergunta
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="row">';
+            questions.forEach((q, idx) => {
+                const correctLabels = q.correctAnswers.map(i => `Alt. ${i + 1}`).join(', ');
+
+                html += `
+                    <div class="col-12 mb-3">
+                        <div class="card question-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Pergunta ${idx + 1}: ${q.title}</h5>
+                                        ${q.name ? `<p class="text-muted mb-0">Personagem: ${q.name}</p>` : ''}
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-warning me-2" onclick="editQuestion(${idx})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteQuestion(${idx})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p class="mb-2"><strong>Descrição:</strong> ${q.description}</p>
+                                <p class="mb-2"><strong>Desafio:</strong> ${q.challenge}</p>
+                                <p class="mb-3"><strong>Objetivo:</strong> ${q.objective}</p>
+
+                                <h6 class="fw-bold mb-2">Alternativas:</h6>
+                                <div class="mb-2">
+                                    ${q.alternatives.map((alt, altIdx) => `
+                                        <div class="alternative-item ${q.correctAnswers.includes(altIdx) ? 'correct' : ''}">
+                                            <strong>${altIdx + 1}.</strong> ${alt}
+                                            ${q.correctAnswers.includes(altIdx) ? '<span class="badge-correct float-end">✓ Correta</span>' : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                ${q.explanation ? `<p class="mb-0"><strong>Explicação:</strong> ${q.explanation}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function editQuestion(index) {
+            // Implementar edição de pergunta
+            showNotification('Funcionalidade de edição em desenvolvimento', 'info');
+        }
+
+        async function deleteQuestion(index) {
+            if (!confirm('Deseja realmente excluir esta pergunta?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Room/DeleteQuestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomCode: roomCode,
+                        questionIndex: index
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    loadQuestions();
+                    checkCanStartGame();
+                } else {
+                    showNotification(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('Erro ao excluir pergunta', 'danger');
+            }
+        }
+
+        async function checkCanStartGame() {
+            try {
+                const response = await fetch(`/Room/GetQuestions?roomCode=${roomCode}`);
+                const data = await response.json();
+
+                const statusAlert = document.getElementById('status-alert');
+                const btnGoToGame = document.getElementById('btn-go-to-game');
+
+                if (data.totalQuestions < 6) {
+                    // Menos de 6 perguntas - bloquear acesso
+                    statusAlert.style.display = 'block';
+                    statusAlert.className = 'alert alert-danger';
+                    statusAlert.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Bloqueado:</strong> É necessário criar pelo menos 6 perguntas antes de acessar o jogo. Você tem ${data.totalQuestions} pergunta(s).
+                    `;
+
+                    btnGoToGame.classList.add('disabled');
+                    btnGoToGame.style.pointerEvents = 'none';
+                    btnGoToGame.style.opacity = '0.5';
+                    btnGoToGame.innerHTML = '<i class="fas fa-lock me-2"></i>Jogo Bloqueado';
+                } else {
+                    // 6 ou mais perguntas - liberar acesso
+                    statusAlert.style.display = 'block';
+                    statusAlert.className = 'alert alert-success';
+                    statusAlert.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Pronto!</strong> ${data.totalQuestions} pergunta(s) cadastrada(s). Você pode iniciar o jogo agora.
+                    `;
+
+                    btnGoToGame.classList.remove('disabled');
+                    btnGoToGame.style.pointerEvents = 'auto';
+                    btnGoToGame.style.opacity = '1';
+                    btnGoToGame.innerHTML = '<i class="fas fa-gamepad me-2"></i>Ir para o Jogo';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notification-toast');
+            const toastBody = document.getElementById('toast-message');
+            const toastHeader = toast.querySelector('.toast-header');
+
+            toastHeader.className = `toast-header bg-${type} text-white`;
+            toastBody.textContent = message;
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function updateQuestion() {
+            // Implementar atualização de pergunta
+            showNotification('Funcionalidade de atualização em desenvolvimento', 'info');
+        }
+    </script>
+</body>
+</html>

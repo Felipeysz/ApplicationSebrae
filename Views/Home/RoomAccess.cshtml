@@ -1,0 +1,614 @@
+﻿@{
+    ViewData["Title"] = "Acessar Sala";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            --hover-shadow: 0 35px 70px rgba(0,0,0,0.3);
+        }
+
+        /* Estilos Base */
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+                animation: floatBackground 20s ease-in-out infinite;
+            }
+
+        /* Card Principal */
+        .access-card {
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+        }
+
+            .access-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--primary-gradient);
+            }
+
+            .access-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        /* Header do Card */
+        .game-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+            animation: bounce 3s infinite;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+        }
+
+        /* Input do Código */
+        .code-input {
+            font-size: 2.5rem;
+            text-align: center;
+            letter-spacing: 1rem;
+            font-weight: 800;
+            border: 3px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #1e293b;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            .code-input:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25), inset 0 2px 10px rgba(59, 130, 246, 0.1);
+                transform: scale(1.02);
+                background: white;
+            }
+
+            .code-input::placeholder {
+                color: #cbd5e1;
+                letter-spacing: 1rem;
+            }
+
+        /* Teclado Numérico */
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 2rem;
+        }
+
+        .number-btn {
+            font-size: 1.75rem;
+            padding: 1.25rem;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            color: #3b82f6;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .number-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+                transition: left 0.5s;
+            }
+
+            .number-btn:hover::before {
+                left: 100%;
+            }
+
+            .number-btn:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.8);
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                color: white;
+            }
+
+            .number-btn:active {
+                transform: translateY(0) scale(0.95);
+                transition: all 0.1s ease;
+            }
+
+        /* Botões Especiais */
+        .clear-btn {
+            background: var(--danger-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+            .clear-btn:hover {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+            }
+
+        .backspace-btn {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+            color: white;
+        }
+
+            .backspace-btn:hover {
+                background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            }
+
+        /* Botão de Acesso */
+        .access-btn {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 18px;
+            padding: 1.25rem 2rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+            .access-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                transition: left 0.6s;
+            }
+
+            .access-btn:hover::before {
+                left: 100%;
+            }
+
+            .access-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+            }
+
+            .access-btn:disabled {
+                transform: none;
+                box-shadow: none;
+                opacity: 0.7;
+            }
+
+        /* Alertas */
+        .alert {
+            border: none;
+            border-radius: 15px;
+            border-left: 5px solid #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Link Voltar */
+        .back-link {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .back-link:hover {
+                color: #3b82f6;
+                transform: translateX(-5px);
+            }
+
+        /* Animações */
+        @@keyframes floatBackground {
+            0%, 100%
+
+        {
+            transform: translateY(0px) scale(1);
+        }
+
+        50% {
+            transform: translateY(-20px) scale(1.02);
+        }
+
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100%
+
+        {
+            transform: translateY(0) rotate(0deg);
+        }
+
+        40% {
+            transform: translateY(-10px) rotate(5deg);
+        }
+
+        60% {
+            transform: translateY(-5px) rotate(-5deg);
+        }
+
+        }
+
+        @@keyframes slideDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @@keyframes popIn {
+            0%
+
+        {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+
+            .access-card {
+                margin: 1rem;
+            }
+
+            .card-body {
+                padding: 2rem !important;
+            }
+
+            .code-input {
+                font-size: 2rem;
+                letter-spacing: 0.8rem;
+                padding: 1.25rem;
+            }
+
+            .number-btn {
+                font-size: 1.5rem;
+                padding: 1rem;
+            }
+
+            .game-icon {
+                font-size: 3rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .code-input {
+                font-size: 1.75rem;
+                letter-spacing: 0.6rem;
+                padding: 1rem;
+            }
+
+            .number-btn {
+                font-size: 1.25rem;
+                padding: 0.875rem;
+            }
+
+            .access-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Indicador de Dígitos */
+        .code-placeholder {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .digit-slot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+            .digit-slot.filled {
+                background: #3b82f6;
+                transform: scale(1.2);
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid animate-pop">
+        <div class="row justify-content-center align-items-center min-vh-100 py-5">
+            <div class="col-xl-4 col-lg-5 col-md-6 col-sm-8">
+                <div class="card access-card animate-slide-up">
+                    <div class="card-body p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <span class="game-icon">🎮</span>
+                            <h2 class="h1 fw-bold text-primary mb-3">Missão SEBRAE</h2>
+                            <p class="text-muted fs-6">Digite o código da sala (6 dígitos)</p>
+                        </div>
+
+                        <!-- Formulário -->
+                        <form id="room-access-form" onsubmit="accessRoom(event)">
+                            <!-- Input do Código -->
+                            <div class="mb-4">
+                                <input type="text"
+                                       id="room-code"
+                                       class="form-control code-input"
+                                       maxlength="6"
+                                       placeholder="------"
+                                       pattern="[0-9]{6}"
+                                       readonly
+                                       required>
+                                <!-- Indicador visual dos dígitos -->
+                                <div class="code-placeholder">
+                                    <div class="digit-slot" id="digit-1"></div>
+                                    <div class="digit-slot" id="digit-2"></div>
+                                    <div class="digit-slot" id="digit-3"></div>
+                                    <div class="digit-slot" id="digit-4"></div>
+                                    <div class="digit-slot" id="digit-5"></div>
+                                    <div class="digit-slot" id="digit-6"></div>
+                                </div>
+                            </div>
+
+                            <!-- Teclado Numérico -->
+                            <div class="number-pad">
+                                <button type="button" class="number-btn" onclick="addDigit('1')">1</button>
+                                <button type="button" class="number-btn" onclick="addDigit('2')">2</button>
+                                <button type="button" class="number-btn" onclick="addDigit('3')">3</button>
+                                <button type="button" class="number-btn" onclick="addDigit('4')">4</button>
+                                <button type="button" class="number-btn" onclick="addDigit('5')">5</button>
+                                <button type="button" class="number-btn" onclick="addDigit('6')">6</button>
+                                <button type="button" class="number-btn" onclick="addDigit('7')">7</button>
+                                <button type="button" class="number-btn" onclick="addDigit('8')">8</button>
+                                <button type="button" class="number-btn" onclick="addDigit('9')">9</button>
+                                <button type="button" class="number-btn clear-btn" onclick="clearCode()">✕</button>
+                                <button type="button" class="number-btn" onclick="addDigit('0')">0</button>
+                                <button type="button" class="number-btn backspace-btn" onclick="removeDigit()">⌫</button>
+                            </div>
+
+                            <!-- Botão de Acesso -->
+                            <button type="submit" class="btn access-btn w-100 mt-4" id="access-btn">
+                                Acessar Sala
+                            </button>
+                        </form>
+
+                        <!-- Link Voltar -->
+                        <div class="text-center mt-4">
+                            <a href="@Url.Action("Index")" class="back-link">
+                                <i class="fas fa-arrow-left"></i>
+                                Voltar ao Início
+                            </a>
+                        </div>
+
+                        <!-- Mensagem de Erro -->
+                        <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        let currentCode = '';
+
+        function addDigit(digit) {
+            if (currentCode.length < 6) {
+                currentCode += digit;
+                updateDisplay();
+
+                // Auto-submit quando completar 6 dígitos
+                if (currentCode.length === 6) {
+                    setTimeout(() => {
+                        document.getElementById('room-access-form').requestSubmit();
+                    }, 400);
+                }
+            }
+        }
+
+        function removeDigit() {
+            if (currentCode.length > 0) {
+                currentCode = currentCode.slice(0, -1);
+                updateDisplay();
+            }
+        }
+
+        function clearCode() {
+            currentCode = '';
+            updateDisplay();
+            document.getElementById('room-code').focus();
+        }
+
+        function updateDisplay() {
+            const input = document.getElementById('room-code');
+            input.value = currentCode;
+
+            // Atualizar placeholder
+            const placeholder = '------'.substring(currentCode.length);
+            input.placeholder = currentCode + placeholder;
+
+            // Atualizar indicador visual
+            for (let i = 1; i <= 6; i++) {
+                const digitSlot = document.getElementById(`digit-${i}`);
+                if (i <= currentCode.length) {
+                    digitSlot.classList.add('filled');
+                } else {
+                    digitSlot.classList.remove('filled');
+                }
+            }
+        }
+
+        async function accessRoom(event) {
+            event.preventDefault();
+
+            if (currentCode.length !== 6) {
+                showError('Digite um código de 6 dígitos');
+                return;
+            }
+
+            const btn = document.getElementById('access-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verificando código...';
+
+            try {
+                // Simular verificação (substitua pela sua API real)
+                const response = await fetch('/Home/VerifyRoomCode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode: currentCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Redirecionando...';
+                    setTimeout(() => {
+                        window.location.href = `/Home/TeamSelect?roomCode=${currentCode}`;
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Código inválido. Verifique e tente novamente.');
+                    clearCode();
+                    btn.disabled = false;
+                    btn.innerHTML = 'Acessar Sala';
+                }
+            } catch (error) {
+                console.error('Erro ao verificar código:', error);
+                showError('Erro ao conectar. Tente novamente.');
+                btn.disabled = false;
+                btn.innerHTML = 'Acessar Sala';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            errorDiv.style.display = 'block';
+
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Permitir digitação pelo teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                addDigit(e.key);
+            } else if (e.key === 'Backspace') {
+                removeDigit();
+            } else if (e.key === 'Escape') {
+                clearCode();
+            } else if (e.key === 'Enter' && currentCode.length === 6) {
+                document.getElementById('room-access-form').requestSubmit();
+            }
+        });
+
+        // Focar no input ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('room-code').focus();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1701 @@
+﻿@model ApplicationSebrae.ViewModels.FacilitatorGameViewModel
+@{
+    ViewData["Title"] = "Painel do Facilitador - " + Model.RoomName;
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Font Awesome CSS ONLY - sem JavaScript -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --hover-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        /* Estilos Base */
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+                animation: floatBackground 20s ease-in-out infinite;
+            }
+
+        /* Cards Principais */
+        .main-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .team-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .team-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .team-card:hover {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: var(--hover-shadow);
+                background: white;
+            }
+
+        /* Banner da Sala */
+        .room-code-banner {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .room-code-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5rem;
+            color: #3b82f6;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Cards de Estatísticas */
+        .stats-card {
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stats-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .stats-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--card-shadow);
+            }
+
+        /* Botões de Controle */
+        .control-btn {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            border-radius: 15px;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .control-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.6s;
+            }
+
+            .control-btn:hover::before {
+                left: 100%;
+            }
+
+            .control-btn:hover {
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-info {
+            background: var(--info-gradient);
+            box-shadow: 0 8px 25px rgba(168, 237, 234, 0.4);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning-gradient);
+            box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Indicador de Status */
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* Barra de Progresso */
+        .progress {
+            height: 30px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-bar {
+            border-radius: 15px;
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Respostas Corretas */
+        .correct-answer {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: none;
+            border-radius: 12px;
+            border-left: 5px solid #10b981;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .correct-answer:hover {
+                transform: translateX(5px);
+                box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+            }
+
+        /* Badges */
+        .badge {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* Controle de Música */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 80px;
+            z-index: 1000;
+        }
+
+        .music-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .music-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            }
+
+            .music-btn.muted {
+                background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            }
+
+        /* Animações */
+        @@keyframes floatBackground {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.02);
+            }
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @@keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Modal */
+        .modal-content {
+            border: none;
+            border-radius: 25px;
+            box-shadow: var(--hover-shadow);
+        }
+
+        .modal-header {
+            border-radius: 25px 25px 0 0;
+        }
+
+        /* Toast */
+        .toast {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Ranking */
+        .ranking-item {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+            .ranking-item:hover {
+                transform: translateX(5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        /* Modal de Ranking Expandido - ATUALIZADO PARA QUADRADO */
+        .ranking-modal .modal-dialog {
+            max-width: 95%;
+            height: 95vh;
+        }
+
+        .ranking-modal .modal-content {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .ranking-modal .modal-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .ranking-modal .modal-body {
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .ranking-podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 2rem;
+            margin: 3rem 0;
+            perspective: 1000px;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.5s ease;
+        }
+
+            .podium-item:hover {
+                transform: translateY(-10px);
+            }
+
+        /* MUDANÇA PRINCIPAL: De círculo para quadrado com bordas suaves */
+        .podium-place {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Mantém as cores do gradiente, apenas altera a forma */
+        .podium-first {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            height: 200px;
+            order: 2;
+            border-radius: 20px;
+        }
+
+        .podium-second {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+            height: 160px;
+            order: 1;
+            border-radius: 15px;
+        }
+
+        .podium-third {
+            background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+            height: 140px;
+            order: 3;
+            border-radius: 15px;
+        }
+
+        .podium-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .podium-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .ranking-table {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ranking-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+            .ranking-row:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateX(10px);
+            }
+
+        .ranking-position {
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 50px;
+            text-align: center;
+        }
+
+        .ranking-team {
+            flex: 1;
+            padding: 0 1rem;
+        }
+
+        .ranking-team-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .ranking-team-score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .ranking-team-details {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .show-ranking-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1e3c72;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+            .show-ranking-btn:hover {
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 15px 30px rgba(255, 215, 0, 0.6);
+            }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .room-code-display {
+                font-size: 2rem;
+                letter-spacing: 0.3rem;
+            }
+
+            .stats-card .display-4 {
+                font-size: 2.5rem;
+            }
+
+            .control-btn {
+                padding: 1rem 1.25rem;
+                font-size: 1rem;
+            }
+
+            .container-fluid {
+                padding: 1rem;
+            }
+
+            .ranking-modal .modal-dialog {
+                max-width: 100%;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .ranking-podium {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .podium-item {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .podium-first, .podium-second, .podium-third {
+                height: 120px;
+                order: 0;
+                border-radius: 15px;
+            }
+
+            .podium-place {
+                width: 100px;
+                height: 100px;
+                border-radius: 12px;
+            }
+
+            .music-control {
+                top: 80px;
+                right: 20px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .room-code-display {
+                font-size: 1.75rem;
+                letter-spacing: 0.2rem;
+            }
+
+            .progress {
+                height: 25px;
+            }
+
+            .btn {
+                padding: 0.875rem 1rem;
+            }
+        }
+
+        /* Painel Sticky */
+        .sticky-panel {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Controle de Música -->
+    <div class="music-control">
+        <button id="music-toggle" class="music-btn">
+            <i class="fas fa-volume-up"></i>
+        </button>
+    </div>
+
+    <audio id="game-music" loop>
+        <source src="~/midia/GameShowGroove.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- Áudio para música do ranking -->
+    <audio id="ranking-music" loop>
+        <source src="~/midia/Sebrae_OCaminhodoSucesso.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="container-fluid py-4 animate-pop">
+        <!-- Banner com Código da Sala -->
+        <div class="room-code-banner mb-4 animate-slide-up">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="text-muted mb-2">
+                        <i class="fas fa-door-open me-2"></i>
+                        Sala: @Model.RoomName
+                    </h5>
+                    <div class="room-code-display">📍 @Model.RoomCode</div>
+                    <p class="text-muted mt-2 mb-0">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Compartilhe este código com as equipes para entrarem no jogo
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="@Url.Action("FacilitatorDashboard")" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Voltar ao Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Painel Principal -->
+            <div class="col-lg-8">
+                <div class="main-card shadow-lg mb-4">
+                    <div class="card-body p-4">
+                        <h2 class="text-center display-6 fw-bold text-primary mb-4">
+                            🎮 Painel de Controle do Jogo
+                        </h2>
+
+                        <!-- Estatísticas Rápidas -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="stats-card h-100">
+                                    <div class="card-body text-center p-4">
+                                        <div class="feature-icon text-primary mb-2">🔄</div>
+                                        <h5 class="text-muted">Rodada Atual</h5>
+                                        <h2 class="display-4 fw-bold text-primary mb-0">
+                                            <span id="current-round-display">@(Model.CurrentRound + 1)</span>
+                                        </h2>
+                                        <p class="text-muted mb-0">de @Model.TotalRounds</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stats-card h-100">
+                                    <div class="card-body text-center p-4">
+                                        <div class="feature-icon text-warning mb-2">📊</div>
+                                        <h5 class="text-muted">Status do Jogo</h5>
+                                        <h3 class="fw-bold" id="game-status-text">
+                                            <span class="status-indicator bg-warning"></span>
+                                            <span id="status-label">@Model.GameStatus</span>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stats-card h-100">
+                                    <div class="card-body text-center p-4">
+                                        <div class="feature-icon text-success mb-2">👥</div>
+                                        <h5 class="text-muted">Equipes Conectadas</h5>
+                                        <h2 class="display-4 fw-bold text-success mb-0" id="connected-teams-display">@Model.ConnectedTeams</h2>
+                                        <p class="text-muted mb-0">de <span id="total-teams-display">@Model.Teams.Count</span> equipes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Progresso -->
+                        <div class="mb-4">
+                            <h5 class="fw-semibold mb-3">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Progresso do Jogo
+                            </h5>
+                            <div class="progress">
+                                <div id="game-progress-bar"
+                                     class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar"
+                                     style="width: @(((Model.CurrentRound + 1) * 100.0 / Model.TotalRounds))%">
+                                    @(Model.CurrentRound + 1) / @Model.TotalRounds
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Controles do Jogo -->
+                        <div class="mb-4">
+                            <h5 class="fw-semibold mb-3">
+                                <i class="fas fa-gamepad me-2"></i>
+                                Controles do Jogo
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <button id="start-investigation-btn"
+                                            class="btn btn-success btn-lg w-100 control-btn">
+                                        <i class="fas fa-search me-2"></i>
+                                        Iniciar Investigação
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button id="next-round-btn"
+                                            class="btn btn-primary btn-lg w-100 control-btn">
+                                        <i class="fas fa-forward me-2"></i>
+                                        Próxima Rodada
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button id="reset-round-btn"
+                                            class="btn btn-warning btn-lg w-100 control-btn">
+                                        <i class="fas fa-undo me-2"></i>
+                                        Reiniciar Rodada
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button id="reset-room-btn"
+                                            class="btn btn-danger btn-lg w-100 control-btn">
+                                        <i class="fas fa-sync-alt me-2"></i>
+                                        Reiniciar Sala
+                                    </button>
+                                </div>
+                                <div class="col-12">
+                                    <button id="show-ranking-btn"
+                                            class="btn show-ranking-btn btn-lg w-100">
+                                        <i class="fas fa-trophy me-2"></i>
+                                        Mostrar Ranking para Todos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações da Rodada Atual -->
+                        <div id="current-round-info" class="alert alert-primary">
+                            <h5 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Informações da Rodada
+                            </h5>
+                            <p class="mb-0" id="round-description">Carregando informações...</p>
+                        </div>
+
+                        <!-- Votos das Equipes -->
+                        <div id="team-votes-section" class="mb-4" style="display: none;">
+                            <h5 class="fw-semibold mb-3">
+                                <i class="fas fa-vote-yea me-2"></i>
+                                Votos das Equipes
+                            </h5>
+                            <div id="team-votes-list" class="row"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Lateral - Equipes -->
+            <div class="col-lg-4">
+                <div class="main-card shadow-lg sticky-panel">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">
+                            <i class="fas fa-users me-2"></i>
+                            Equipes
+                        </h4>
+
+                        <div id="teams-list" class="d-grid gap-3">
+                            @foreach (var team in Model.Teams)
+                            {
+                                <div class="team-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="fw-bold mb-0">@team.Icon @team.Name</h5>
+                                            <span class="badge @(team.IsActive ? "bg-success" : "bg-secondary")" id="team-@team.Id-status">
+                                                <i class="fas fa-@(team.IsActive ? "wifi" : "signal") me-1"></i>
+                                                @(team.IsActive ? "Online" : "Offline")
+                                            </span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">Pontuação:</span>
+                                            <span class="h4 mb-0 fw-bold text-primary" id="team-@team.Id-score">@team.Score</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-reply me-1"></i>
+                                                Respostas: <span id="team-@team.Id-responses">@team.Responses.Count</span>/@Model.CurrentRound
+                                            </small>
+                                        </div>
+
+                                        @if (team.RoundScores.Any())
+                                        {
+                                            <div class="mt-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-history me-1"></i>
+                                                    Histórico:
+                                                </small>
+                                                <div class="d-flex gap-1 flex-wrap mt-1">
+                                                    @foreach (var score in team.RoundScores)
+                                                    {
+                                                        <span class="badge @(score >= 15 ? "bg-success" : score >= 10 ? "bg-warning" : "bg-secondary")">
+                                                            @score pts
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Ranking Rápido -->
+                        <div class="mt-4">
+                            <h5 class="fw-semibold mb-3">
+                                <i class="fas fa-trophy me-2"></i>
+                                Ranking Atual
+                            </h5>
+                            <div id="quick-ranking" class="list-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Reset -->
+    <div class="modal fade" id="resetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Reinício
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Tem certeza que deseja reiniciar esta sala? Todos os dados e pontuações serão perdidos permanentemente.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirm-reset-btn">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        Sim, Reiniciar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Reset da Rodada -->
+    <div class="modal fade" id="resetRoundModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-undo me-2"></i>
+                        Reiniciar Rodada
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Tem certeza que deseja reiniciar esta rodada? Os pontos desta rodada serão removidos e as equipes poderão responder novamente.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" id="confirm-reset-round-btn">
+                        <i class="fas fa-undo me-2"></i>
+                        Sim, Reiniciar Rodada
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ranking Expandido -->
+    <div class="modal fade ranking-modal" id="rankingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title w-100 text-center">
+                        <i class="fas fa-trophy me-3"></i>
+                        RANKING FINAL
+                        <i class="fas fa-trophy ms-3"></i>
+                    </h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="ranking-podium-container">
+                        <!-- Pódio será gerado dinamicamente via JavaScript -->
+                    </div>
+                    <div id="ranking-table-container" class="ranking-table">
+                        <!-- Tabela de ranking será gerada dinamicamente via JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-light btn-lg" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast para notificações -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">Missão SEBRAE</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        const roomCode = '@Model.RoomCode';
+        let currentRound = @Model.CurrentRound;
+        let gameStatus = '@Model.GameStatus';
+        let investigationStarted = false;
+
+        // Sistema de Música CORRIGIDO
+        const musicManager = {
+            gameMusic: document.getElementById('game-music'),
+            rankingMusic: document.getElementById('ranking-music'),
+            toggleBtn: document.getElementById('music-toggle'),
+            currentMusic: null,
+            isMuted: localStorage.getItem('musicMuted') === 'true',
+            hasStarted: false,
+
+            init() {
+                this.toggleBtn.addEventListener('click', () => this.toggleMusic());
+                this.applyMuteState();
+
+                // ✅ CORREÇÃO: Iniciar música do jogo automaticamente
+                if (gameStatus === 'investigation' || gameStatus === 'presentation') {
+                    this.playGameMusic();
+                }
+
+                console.log('Sistema de música inicializado');
+            },
+
+            // ✅ NOVA FUNÇÃO: Tocar música do jogo
+            async playGameMusic() {
+                try {
+                    // Parar música do ranking se estiver tocando
+                    if (this.rankingMusic && !this.rankingMusic.paused) {
+                        this.rankingMusic.pause();
+                        this.rankingMusic.currentTime = 0;
+                    }
+
+                    if (this.gameMusic) {
+                        this.gameMusic.volume = this.isMuted ? 0 : 0.5;
+                        await this.gameMusic.play();
+                        this.currentMusic = 'game';
+                        this.hasStarted = true;
+                        console.log('✅ Música do jogo (GameShowGroove) iniciada');
+                    }
+                } catch (error) {
+                    console.log('Erro ao iniciar música do jogo:', error);
+                }
+            },
+
+            // ✅ NOVA FUNÇÃO: Tocar música do ranking
+            async playRankingMusic() {
+                try {
+                    // Pausar música do jogo
+                    if (this.gameMusic && !this.gameMusic.paused) {
+                        this.gameMusic.pause();
+                        this.gameMusic.currentTime = 0;
+                        console.log('⏸️ Música do jogo pausada');
+                    }
+
+                    if (this.rankingMusic) {
+                        this.rankingMusic.volume = this.isMuted ? 0 : 0.7;
+                        await this.rankingMusic.play();
+                        this.currentMusic = 'ranking';
+                        console.log('✅ Música do ranking (Sebrae_OCaminhodoSucesso) iniciada');
+                    }
+                } catch (error) {
+                    console.log('Erro ao iniciar música do ranking:', error);
+                }
+            },
+
+            toggleMusic() {
+                this.isMuted = !this.isMuted;
+
+                if (this.isMuted) {
+                    // Mutar ambas as músicas
+                    if (this.gameMusic) this.gameMusic.volume = 0;
+                    if (this.rankingMusic) this.rankingMusic.volume = 0;
+                    this.toggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    this.toggleBtn.classList.add('muted');
+                } else {
+                    // Desmutar a música atual
+                    if (this.currentMusic === 'game' && this.gameMusic) {
+                        this.gameMusic.volume = 0.5;
+                    } else if (this.currentMusic === 'ranking' && this.rankingMusic) {
+                        this.rankingMusic.volume = 0.7;
+                    }
+                    this.toggleBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    this.toggleBtn.classList.remove('muted');
+
+                    // Se não começou ainda, inicia música do jogo
+                    if (!this.hasStarted) {
+                        this.playGameMusic();
+                    }
+                }
+
+                localStorage.setItem('musicMuted', this.isMuted.toString());
+            },
+
+            applyMuteState() {
+                if (this.isMuted) {
+                    if (this.gameMusic) this.gameMusic.volume = 0;
+                    if (this.rankingMusic) this.rankingMusic.volume = 0;
+                    this.toggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    this.toggleBtn.classList.add('muted');
+                } else {
+                    this.toggleBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    this.toggleBtn.classList.remove('muted');
+                }
+            },
+
+            stopAllMusic() {
+                if (this.gameMusic) {
+                    this.gameMusic.pause();
+                    this.gameMusic.currentTime = 0;
+                }
+                if (this.rankingMusic) {
+                    this.rankingMusic.pause();
+                    this.rankingMusic.currentTime = 0;
+                }
+                this.hasStarted = false;
+                this.currentMusic = null;
+            }
+        };
+
+        // ✅ ATUALIZAR: Função para controlar música baseado no estado
+        function controlMusic(gameStatus) {
+            // ✅ CORREÇÃO: Não interferir na música se o ranking estiver sendo exibido
+            const rankingModal = document.getElementById('rankingModal');
+            const isRankingOpen = rankingModal && rankingModal.classList.contains('show');
+
+            if (isRankingOpen) {
+                // Se o ranking está aberto, manter música do ranking
+                if (musicManager.currentMusic !== 'ranking') {
+                    musicManager.playRankingMusic();
+                }
+                return; // Não fazer mais nada
+            }
+
+            if (gameStatus === 'investigation' || gameStatus === 'presentation') {
+                // Durante o jogo: música GameShowGroove
+                if (musicManager.currentMusic !== 'game') {
+                    musicManager.playGameMusic();
+                }
+            } else if (gameStatus === 'finished') {
+                // Jogo finalizado: pausar música (apenas se ranking não estiver aberto)
+                if (!isRankingOpen) {
+                    musicManager.stopAllMusic();
+                }
+            }
+        }
+
+        // Inicialização quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar sistema de música
+            musicManager.init();
+
+            initializeEventListeners();
+            updateGameState();
+            loadCurrentRoundInfo();
+            updateRanking();
+
+            // Iniciar atualização automática
+            setInterval(updateGameState, 3000);
+            setInterval(updateRanking, 5000);
+        });
+
+        // Configurar event listeners
+        function initializeEventListeners() {
+            // Botões de controle
+            document.getElementById('start-investigation-btn').addEventListener('click', startInvestigation);
+            document.getElementById('next-round-btn').addEventListener('click', nextRound);
+            document.getElementById('reset-round-btn').addEventListener('click', confirmResetRound);
+            document.getElementById('reset-room-btn').addEventListener('click', confirmReset);
+            document.getElementById('show-ranking-btn').addEventListener('click', showRankingModal);
+
+            // Confirmações
+            document.getElementById('confirm-reset-btn').addEventListener('click', resetRoom);
+            document.getElementById('confirm-reset-round-btn').addEventListener('click', resetRound);
+
+            // ✅ ATUALIZAR: Quando fechar o modal de ranking, voltar à música do jogo
+            document.getElementById('rankingModal').addEventListener('hidden.bs.modal', function () {
+                // Se o jogo ainda está em andamento, voltar à música do jogo
+                if (gameStatus !== 'finished') {
+                    musicManager.playGameMusic();
+                }
+            });
+        }
+
+        async function updateGameState() {
+            try {
+                const response = await fetch(`/Home/GetGameState?roomCode=${roomCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentRound = data.currentRound;
+                    gameStatus = data.gameStatus;
+
+                    document.getElementById('current-round-display').textContent = currentRound + 1;
+                    document.getElementById('connected-teams-display').textContent = data.connectedTeams;
+                    document.getElementById('total-teams-display').textContent = data.teams.length;
+
+                    updateStatusDisplay(data.gameStatus);
+                    updateTeamsInfo(data.teams);
+                    updateProgressBar();
+                    updateButtonStates();
+
+                    // ✅ ATUALIZAR: Controlar música baseado no estado
+                    controlMusic(data.gameStatus);
+
+                    // Mostrar votos se estiver em investigação ou resultados
+                    if (gameStatus === 'investigation' || gameStatus === 'results') {
+                        await loadTeamVotes();
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar estado:', error);
+            }
+        }
+
+        function updateStatusDisplay(status) {
+            const statusLabel = document.getElementById('status-label');
+            const statusIndicator = document.querySelector('.status-indicator');
+
+            const statusMap = {
+                'setup': { text: 'Configuração', color: 'bg-secondary' },
+                'presentation': { text: 'Apresentação', color: 'bg-info' },
+                'investigation': { text: 'Investigação', color: 'bg-success' },
+                'results': { text: 'Resultados', color: 'bg-warning' },
+                'finished': { text: 'Finalizado', color: 'bg-dark' }
+            };
+
+            const statusInfo = statusMap[status] || statusMap['setup'];
+            statusLabel.textContent = statusInfo.text;
+            statusIndicator.className = `status-indicator ${statusInfo.color}`;
+        }
+
+        function updateButtonStates() {
+            const startBtn = document.getElementById('start-investigation-btn');
+            const nextRoundBtn = document.getElementById('next-round-btn');
+            const resetRoundBtn = document.getElementById('reset-round-btn');
+            const showRankingBtn = document.getElementById('show-ranking-btn');
+
+            // Verificar quantas equipes estão online
+            const onlineTeams = document.querySelectorAll('.badge.bg-success').length;
+            const minTeamsRequired = 2;
+
+            // Botão Iniciar Investigação
+            if (gameStatus === 'investigation' || gameStatus === 'results' || gameStatus === 'finished') {
+                startBtn.disabled = true;
+                startBtn.classList.add('btn-disabled');
+                startBtn.innerHTML = '<i class="fas fa-search me-2"></i>Investigação em Andamento';
+            } else if (onlineTeams < minTeamsRequired) {
+                startBtn.disabled = true;
+                startBtn.classList.add('btn-disabled');
+                startBtn.innerHTML = `<i class="fas fa-search me-2"></i>Necessário ${minTeamsRequired} Equipes`;
+            } else {
+                startBtn.disabled = false;
+                startBtn.classList.remove('btn-disabled');
+                startBtn.innerHTML = '<i class="fas fa-search me-2"></i>Iniciar Investigação';
+            }
+
+            // Botão Próxima Rodada
+            nextRoundBtn.disabled = gameStatus !== 'results';
+
+            // Botão Reiniciar Rodada
+            resetRoundBtn.disabled = gameStatus !== 'results' && gameStatus !== 'investigation';
+
+            // Botão Mostrar Ranking - habilitado apenas quando o jogo estiver finalizado
+            if (gameStatus === 'finished') {
+                showRankingBtn.disabled = false;
+                showRankingBtn.classList.remove('btn-disabled');
+            } else {
+                showRankingBtn.disabled = true;
+                showRankingBtn.classList.add('btn-disabled');
+            }
+        }
+
+        function updateTeamsInfo(teams) {
+            teams.forEach(team => {
+                const scoreElement = document.getElementById(`team-${team.id}-score`);
+                const responsesElement = document.getElementById(`team-${team.id}-responses`);
+                const statusElement = document.getElementById(`team-${team.id}-status`);
+
+                if (scoreElement) scoreElement.textContent = team.score;
+                if (responsesElement) responsesElement.textContent = team.responseCount;
+
+                // Atualizar status online/offline
+                if (statusElement) {
+                    if (team.isActive) {
+                        statusElement.className = 'badge bg-success';
+                        statusElement.innerHTML = '<i class="fas fa-wifi me-1"></i>Online';
+                    } else {
+                        statusElement.className = 'badge bg-secondary';
+                        statusElement.innerHTML = '<i class="fas fa-signal me-1"></i>Offline';
+                    }
+                }
+            });
+        }
+
+        function updateProgressBar() {
+            const totalRounds = @Model.TotalRounds;
+            const percentage = ((currentRound + 1) / totalRounds) * 100;
+            const progressBar = document.getElementById('game-progress-bar');
+
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `${currentRound + 1} / ${totalRounds}`;
+        }
+
+        async function loadCurrentRoundInfo() {
+            try {
+                const response = await fetch(`/Home/GetDossier?roomCode=${roomCode}&round=${currentRound}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const description = document.getElementById('round-description');
+                    description.innerHTML = `
+                        <strong>${data.dossier.title}</strong><br>
+                        <small>${data.dossier.description}</small>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar informações da rodada:', error);
+            }
+        }
+
+        async function loadTeamVotes() {
+            try {
+                const response = await fetch(`/Home/GetTeamVotingStatus?roomCode=${roomCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const votesSection = document.getElementById('team-votes-section');
+                    const votesList = document.getElementById('team-votes-list');
+
+                    votesSection.style.display = 'block';
+
+                    let html = '';
+                    Object.keys(data).forEach(teamId => {
+                        const teamData = data[teamId];
+                        if (teamData && teamData.users) {
+                            const votedUsers = teamData.users.filter(user => user.hasVoted).length;
+                            const totalUsers = teamData.users.length;
+
+                            html += `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">${teamData.teamName || teamId}</h6>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar ${votedUsers === totalUsers ? 'bg-success' : 'bg-warning'}"
+                                                     style="width: ${(votedUsers / totalUsers) * 100}%">
+                                                    ${votedUsers}/${totalUsers}
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">${votedUsers === totalUsers ? '✅ Todos votaram' : '⏳ Aguardando votos'}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    votesList.innerHTML = html || '<div class="col-12"><p class="text-muted">Nenhum voto registrado ainda.</p></div>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar votos:', error);
+            }
+        }
+
+        // FUNÇÃO: Iniciar Investigação
+        async function startInvestigation() {
+            const btn = document.getElementById('start-investigation-btn');
+            if (!btn || btn.disabled) return;
+
+            try {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Iniciando...';
+                btn.disabled = true;
+
+                const response = await fetch('/Home/StartInvestigation?roomCode=' + roomCode, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Fase de investigação iniciada!', 'success');
+                    gameStatus = 'investigation';
+                    investigationStarted = true;
+                    updateStatusDisplay(gameStatus);
+
+                    // ✅ ATUALIZAR: Iniciar música do jogo
+                    musicManager.playGameMusic();
+
+                    // Atualizar interface
+                    setTimeout(updateGameState, 1000);
+                } else {
+                    showNotification(data.message, 'danger');
+                    if (data.connectedTeams < 2) {
+                        showTeamsWarningModal(data.connectedTeams, data.message);
+                    }
+                    // Restaurar botão em caso de erro
+                    setTimeout(updateGameState, 1000);
+                }
+            } catch (error) {
+                console.error('Erro ao iniciar investigação:', error);
+                showNotification('Erro ao iniciar investigação', 'danger');
+                setTimeout(updateGameState, 1000);
+            }
+        }
+
+        // FUNÇÃO: Próxima Rodada
+        async function nextRound() {
+            const btn = document.getElementById('next-round-btn');
+            if (!btn || btn.disabled) return;
+
+            try {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Avançando...';
+                btn.disabled = true;
+
+                const response = await fetch('/Home/NextRound?roomCode=' + roomCode, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.finished) {
+                        showNotification('Jogo finalizado!', 'info');
+                        gameStatus = 'finished';
+
+                        // ✅ ATUALIZAR: Parar música quando jogo finalizar
+                        musicManager.stopAllMusic();
+                    } else {
+                        showNotification(data.message, 'success');
+                        currentRound = data.currentRound;
+                        gameStatus = 'presentation';
+                        investigationStarted = false;
+
+                        // Ocultar seção de votos
+                        document.getElementById('team-votes-section').style.display = 'none';
+
+                        // Recarregar informações da nova rodada
+                        loadCurrentRoundInfo();
+
+                        // ✅ ATUALIZAR: Continuar música do jogo
+                        musicManager.playGameMusic();
+                    }
+
+                    updateStatusDisplay(gameStatus);
+                    updateProgressBar();
+
+                    // Atualizar interface
+                    setTimeout(updateGameState, 1000);
+                }
+            } catch (error) {
+                console.error('Erro ao avançar rodada:', error);
+                showNotification('Erro ao avançar rodada', 'danger');
+                setTimeout(updateGameState, 1000);
+            }
+        }
+
+        // FUNÇÃO: Reiniciar Rodada
+        async function resetRound() {
+            try {
+                const response = await fetch('/Home/ResetRound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode: roomCode, round: currentRound })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Rodada reiniciada com sucesso!', 'success');
+                    gameStatus = 'presentation';
+                    investigationStarted = false;
+
+                    // Ocultar seção de votos
+                    document.getElementById('team-votes-section').style.display = 'none';
+
+                    // Fechar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('resetRoundModal'));
+                    if (modal) modal.hide();
+
+                    // ✅ ATUALIZAR: Continuar música do jogo
+                    musicManager.playGameMusic();
+
+                    // Atualizar interface
+                    setTimeout(updateGameState, 1000);
+                } else {
+                    showNotification('Erro ao reiniciar rodada: ' + data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao reiniciar rodada:', error);
+                showNotification('Erro ao reiniciar rodada', 'danger');
+            }
+        }
+
+        // FUNÇÃO: Reiniciar Sala
+        async function resetRoom() {
+            try {
+                const response = await fetch('/Home/ResetRoom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode: roomCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.message, 'success');
+
+                    // ✅ ATUALIZAR: Parar música
+                    musicManager.stopAllMusic();
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('resetModal'));
+                    if (modal) modal.hide();
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Erro ao reiniciar sala:', error);
+                showNotification('Erro ao reiniciar a sala', 'danger');
+            }
+        }
+
+        // ✅ ATUALIZAR: Função de mostrar ranking
+        async function showRankingModal() {
+            try {
+                const response = await fetch(`/Home/GetFinalResults?roomCode=${roomCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const teams = data.teams.sort((a, b) => b.score - a.score);
+
+                    // Gerar pódio para as 3 primeiras equipes
+                    const podiumContainer = document.getElementById('ranking-podium-container');
+                    let podiumHtml = '<div class="ranking-podium">';
+
+                    if (teams.length >= 3) {
+                        // Segundo lugar
+                        podiumHtml += `
+                            <div class="podium-item">
+                                <div class="podium-place podium-second">🥈</div>
+                                <div class="podium-name">${teams[1].name}</div>
+                                <div class="podium-score">${teams[1].score} pts</div>
+                            </div>
+                        `;
+
+                        // Primeiro lugar
+                        podiumHtml += `
+                            <div class="podium-item">
+                                <div class="podium-place podium-first">🥇</div>
+                                <div class="podium-name">${teams[0].name}</div>
+                                <div class="podium-score">${teams[0].score} pts</div>
+                            </div>
+                        `;
+
+                        // Terceiro lugar
+                        podiumHtml += `
+                            <div class="podium-item">
+                                <div class="podium-place podium-third">🥉</div>
+                                <div class="podium-name">${teams[2].name}</div>
+                                <div class="podium-score">${teams[2].score} pts</div>
+                            </div>
+                        `;
+                    } else if (teams.length === 2) {
+                        podiumHtml += `
+                            <div class="podium-item">
+                                <div class="podium-place podium-second">🥈</div>
+                                <div class="podium-name">${teams[1].name}</div>
+                                <div class="podium-score">${teams[1].score} pts</div>
+                            </div>
+                            <div class="podium-item">
+                                <div class="podium-place podium-first">🥇</div>
+                                <div class="podium-name">${teams[0].name}</div>
+                                <div class="podium-score">${teams[0].score} pts</div>
+                            </div>
+                        `;
+                    } else if (teams.length === 1) {
+                        podiumHtml += `
+                            <div class="podium-item">
+                                <div class="podium-place podium-first">🥇</div>
+                                <div class="podium-name">${teams[0].name}</div>
+                                <div class="podium-score">${teams[0].score} pts</div>
+                            </div>
+                        `;
+                    }
+
+                    podiumHtml += '</div>';
+                    podiumContainer.innerHTML = podiumHtml;
+
+                    // Gerar tabela de ranking completa
+                    const tableContainer = document.getElementById('ranking-table-container');
+                    let tableHtml = '<h3 class="text-center mb-4">Classificação Completa</h3>';
+
+                    teams.forEach((team, index) => {
+                        const position = index + 1;
+                        const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position;
+
+                        tableHtml += `
+                            <div class="ranking-row">
+                                <div class="ranking-position">${medal}</div>
+                                <div class="ranking-team">
+                                    <div class="ranking-team-name">${team.name}</div>
+                                </div>
+                                <div class="ranking-team-score">${team.score} pontos</div>
+                            </div>
+                        `;
+                    });
+
+                    tableContainer.innerHTML = tableHtml;
+
+                    // ✅ CORREÇÃO PRINCIPAL: Trocar para música do ranking
+                    musicManager.playRankingMusic();
+
+                    // Mostrar o modal
+                    const rankingModal = new bootstrap.Modal(document.getElementById('rankingModal'));
+                    rankingModal.show();
+
+                    showNotification('Ranking exibido!', 'success');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar ranking:', error);
+                showNotification('Erro ao carregar ranking', 'danger');
+            }
+        }
+
+        // FUNÇÕES AUXILIARES
+        function confirmReset() {
+            const modal = new bootstrap.Modal(document.getElementById('resetModal'));
+            modal.show();
+        }
+
+        function confirmResetRound() {
+            const modal = new bootstrap.Modal(document.getElementById('resetRoundModal'));
+            modal.show();
+        }
+
+        function updateRanking() {
+            fetch(`/Home/GetFinalResults?roomCode=${roomCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const ranking = document.getElementById('quick-ranking');
+
+                        let html = '';
+                        data.teams.slice(0, 3).forEach((team, index) => {
+                            const medal = ['🥇', '🥈', '🥉'][index];
+                            html += `
+                                <div class="list-group-item ranking-item d-flex justify-content-between align-items-center">
+                                    <span>${medal} ${team.name}</span>
+                                    <span class="badge bg-primary">${team.score} pts</span>
+                                </div>
+                            `;
+                        });
+
+                        ranking.innerHTML = html;
+                    }
+                })
+                .catch(error => console.error('Erro ao atualizar ranking:', error));
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notification-toast');
+            const toastBody = document.getElementById('toast-message');
+            const toastHeader = toast.querySelector('.toast-header');
+
+            toastHeader.className = `toast-header bg-${type} text-white`;
+            toastBody.textContent = message;
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function showTeamsWarningModal(connectedTeams, message) {
+            const modalHtml = `
+                <div class="modal fade" id="teamsWarningModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning text-dark">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Equipes Insuficientes
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-3">
+                                    <strong>${message}</strong>
+                                </p>
+                                <div class="alert alert-info">
+                                    <small>
+                                        <strong>💡 Solução:</strong><br>
+                                        1. Verifique se as equipes estão na página do jogo<br>
+                                        2. Peça para recarregarem a página se necessário<br>
+                                        3. Aguarde o sistema detectar as conexões
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('teamsWarningModal'));
+            modal.show();
+        }
+
+                // ✅ FUNÇÃO DE DEBUG PARA TESTAR PONTUAÇÃO
+        async function debugQuestionScoring() {
+            try {
+                const response = await fetch(`/Room/DebugQuestion?roomCode=${roomCode}&questionIndex=${currentRound}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log('=== DEBUG PONTUAÇÃO ===');
+                    console.log('Original:', data.original);
+                    console.log('Randomizado:', data.randomized);
+                    console.log('Seed:', data.seed);
+
+                    // Mostrar no toast também
+                    showNotification(
+                        `Debug: C=${data.original.correctAnswers.join(',')} R=${data.randomized.correctAnswers.join(',')}`,
+                        'info'
+                    );
+                }
+            } catch (error) {
+                console.error('Erro no debug:', error);
+            }
+        }
+
+        // Adicionar botão de debug (opcional)
+        function addDebugButton() {
+            const debugBtn = document.createElement('button');
+            debugBtn.className = 'btn btn-warning btn-sm position-fixed';
+            debugBtn.style.bottom = '20px';
+            debugBtn.style.right = '20px';
+            debugBtn.style.zIndex = '1000';
+            debugBtn.innerHTML = '🐛 Debug';
+            debugBtn.onclick = debugQuestionScoring;
+
+            document.body.appendChild(debugBtn);
+        }
+
+        // Chamar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebugButton();
+        });
+    </script>
+</body>
+</html>

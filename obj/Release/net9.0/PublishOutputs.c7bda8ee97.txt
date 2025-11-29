@@ -1,0 +1,8 @@
+D:\Projetos\ApplicationSebrae-main\publish\ApplicationSebrae.exe
+D:\Projetos\ApplicationSebrae-main\publish\appsettings.Development.json
+D:\Projetos\ApplicationSebrae-main\publish\appsettings.json
+D:\Projetos\ApplicationSebrae-main\publish\Data\products.json
+D:\Projetos\ApplicationSebrae-main\publish\ApplicationSebrae.dll
+D:\Projetos\ApplicationSebrae-main\publish\ApplicationSebrae.deps.json
+D:\Projetos\ApplicationSebrae-main\publish\ApplicationSebrae.runtimeconfig.json
+D:\Projetos\ApplicationSebrae-main\publish\ApplicationSebrae.pdb

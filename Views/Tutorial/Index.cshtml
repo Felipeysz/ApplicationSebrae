@@ -1,0 +1,811 @@
+﻿@{
+    ViewData["Title"] = "Tutorial - Missão SEBRAE";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --hover-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .tutorial-hero {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .step-card {
+            border: none;
+            border-radius: 20px;
+            background: white;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+            .step-card:hover {
+                transform: translateY(-10px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: -30px auto 1rem;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .role-card {
+            border: none;
+            border-radius: 20px;
+            background: white;
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
+        }
+
+            .role-card:hover {
+                transform: translateY(-15px) scale(1.05);
+                box-shadow: var(--hover-shadow);
+                text-decoration: none;
+                color: inherit;
+            }
+
+        .icon-container {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+            .feature-list li {
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #f8f9fa;
+            }
+
+                .feature-list li:before {
+                    content: "✓";
+                    color: #28a745;
+                    font-weight: bold;
+                    margin-right: 0.5rem;
+                }
+
+        .game-flow {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .flow-step {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            z-index: 2;
+        }
+
+        .flow-connector {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary-gradient);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @@keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 10px;
+            margin: 0 0.25rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+            .nav-tabs .nav-link.active {
+                background: var(--primary-gradient);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+
+        .quick-start-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
+                    🎯 Missão SEBRAE
+                </a>
+                <div class="navbar-nav">
+                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home me-1"></i>Início
+                    </a>
+                    <a class="nav-link text-dark fw-semibold" asp-controller="Tutorial" asp-action="Index">
+                        <i class="fas fa-book me-1"></i>Tutorial
+                    </a>
+                    <a class="nav-link text-dark" asp-controller="Portfolio" asp-action="Index">
+                        <i class="fas fa-briefcase me-1"></i>Portfólio
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container py-4">
+        <!-- Hero Section -->
+        <div class="tutorial-hero text-center animate-pop">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="fas fa-graduation-cap me-3"></i>
+                Tutorial - Missão SEBRAE
+            </h1>
+            <p class="lead fs-4 text-muted mb-4">
+                Aprenda como funciona o jogo educativo que transforma desafios empreendedores em soluções inovadoras
+            </p>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="quick-start-card animate-slide-up">
+                        <h4 class="text-primary mb-3">🚀 Comece Rápido</h4>
+                        <p class="mb-3">Escolha seu papel no jogo e veja o passo a passo específico:</p>
+                        <div class="d-flex gap-3 justify-content-center flex-wrap">
+                            <a href="#facilitador" class="btn btn-primary btn-lg">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Sou Facilitador
+                            </a>
+                            <a href="#participante" class="btn btn-success btn-lg">
+                                <i class="fas fa-users me-2"></i>Sou Participante
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Abas de Navegação -->
+        <div class="mb-4">
+            <ul class="nav nav-tabs justify-content-center" id="tutorialTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+                        <i class="fas fa-eye me-2"></i>Visão Geral
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="facilitador-tab" data-bs-toggle="tab" data-bs-target="#facilitador" type="button">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Facilitador
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="participante-tab" data-bs-toggle="tab" data-bs-target="#participante" type="button">
+                        <i class="fas fa-users me-2"></i>Participante
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="regras-tab" data-bs-toggle="tab" data-bs-target="#regras" type="button">
+                        <i class="fas fa-scroll me-2"></i>Regras
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="tutorialTabsContent">
+            <!-- ABA: Visão Geral -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <!-- O que é o Missão SEBRAE -->
+                        <div class="step-card animate-slide-up">
+                            <div class="step-number">1</div>
+                            <div class="card-body text-center p-4">
+                                <h3 class="card-title h2 text-primary mb-3">🎯 O que é o Missão SEBRAE?</h3>
+                                <p class="card-text fs-5 text-muted mb-4">
+                                    O <strong>Missão SEBRAE</strong> é um jogo educativo e competitivo onde equipes
+                                    resolvem casos reais de empreendedorismo usando o portfólio de soluções do SEBRAE.
+                                </p>
+                                <div class="row text-start">
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary">🎮 Como Funciona:</h5>
+                                        <ul class="feature-list">
+                                            <li>Equipes competem em rodadas</li>
+                                            <li>Casos reais de empreendedorismo</li>
+                                            <li>Soluções do portfólio SEBRAE</li>
+                                            <li>Pontuação por acertos</li>
+                                            <li>Ranking em tempo real</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5 class="text-success">🎯 Objetivo:</h5>
+                                        <ul class="feature-list">
+                                            <li>Aprender na prática</li>
+                                            <li>Tomar decisões estratégicas</li>
+                                            <li>Conhecer soluções SEBRAE</li>
+                                            <li>Desenvolver pensamento crítico</li>
+                                            <li>Trabalho em equipe</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fluxo do Jogo -->
+                        <div class="step-card animate-slide-up">
+                            <div class="step-number">2</div>
+                            <div class="card-body p-4">
+                                <h3 class="card-title h2 text-primary mb-4 text-center">🔄 Fluxo do Jogo</h3>
+
+                                <div class="game-flow">
+                                    <div class="flow-connector"></div>
+
+                                    <div class="flow-step">
+                                        <h5 class="text-primary">📋 Rodada 1-6</h5>
+                                        <p class="mb-0">Cada rodada apresenta um caso diferente com desafios específicos de empreendedorismo.</p>
+                                    </div>
+
+                                    <div class="flow-step">
+                                        <h5 class="text-success">🔍 Fase de Investigação</h5>
+                                        <p class="mb-0">Equipes analisam o caso e selecionam as 2 melhores soluções do portfólio SEBRAE.</p>
+                                    </div>
+
+                                    <div class="flow-step">
+                                        <h5 class="text-warning">📊 Resultados</h5>
+                                        <p class="mb-0">Sistema calcula pontuação baseada nas soluções corretas escolhidas.</p>
+                                    </div>
+
+                                    <div class="flow-step">
+                                        <h5 class="text-info">🏆 Ranking</h5>
+                                        <p class="mb-0">Classificação atualizada após cada rodada, premiando o conhecimento e estratégia.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Papéis no Jogo -->
+                        <div class="step-card animate-slide-up">
+                            <div class="step-number">3</div>
+                            <div class="card-body p-4">
+                                <h3 class="card-title h2 text-primary mb-4 text-center">👥 Papéis no Jogo</h3>
+
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <a href="#facilitador" class="role-card">
+                                            <div class="card-body text-center p-4">
+                                                <div class="icon-container text-primary">👨‍💼</div>
+                                                <h4 class="text-primary">Facilitador</h4>
+                                                <p class="text-muted">Cria salas, gerencia o jogo, acompanha o progresso e conduz a experiência.</p>
+                                                <div class="badge bg-primary">Administrador</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a href="#participante" class="role-card">
+                                            <div class="card-body text-center p-4">
+                                                <div class="icon-container text-success">👥</div>
+                                                <h4 class="text-success">Participante</h4>
+                                                <p class="text-muted">Integra equipes, resolve casos, escolhe soluções e compete no ranking.</p>
+                                                <div class="badge bg-success">Jogador</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA: Facilitador -->
+            <div class="tab-pane fade" id="facilitador" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-10 mx-auto">
+                        <div class="step-card animate-slide-up">
+                            <div class="card-body p-4">
+                                <h2 class="text-center text-primary mb-4">
+                                    <i class="fas fa-chalkboard-teacher me-3"></i>
+                                    Tutorial do Facilitador
+                                </h2>
+
+                                <div class="row g-4">
+                                    <!-- Passo 1 -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-header bg-primary text-white text-center">
+                                                <h5 class="mb-0">1. Acesso</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>🔐 Acesse o painel do facilitador com a senha fornecida:</p>
+                                                <ol>
+                                                    <li>Vá para a página inicial</li>
+                                                    <li>Clique em "Facilitador"</li>
+                                                    <li>Digite a senha de acesso</li>
+                                                    <li>Entre no painel administrativo</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passo 2 -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-success">
+                                            <div class="card-header bg-success text-white text-center">
+                                                <h5 class="mb-0">2. Criar Sala</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>🏠 Crie uma nova sala de jogo:</p>
+                                                <ol>
+                                                    <li>No painel, clique em "Nova Sala"</li>
+                                                    <li>Dê um nome para a sala</li>
+                                                    <li>Configure equipes (opcional)</li>
+                                                    <li>Gere o código automaticamente</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passo 3 -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-warning">
+                                            <div class="card-header bg-warning text-white text-center">
+                                                <h5 class="mb-0">3. Compartilhar Código</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>📢 Compartilhe o código com participantes:</p>
+                                                <ul>
+                                                    <li>Anote o código de 6 dígitos</li>
+                                                    <li>Compartilhe com os jogadores</li>
+                                                    <li>Escreva em um local visível</li>
+                                                    <li>Ou envie por mensagem</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passo 4 -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-info">
+                                            <div class="card-header bg-info text-white text-center">
+                                                <h5 class="mb-0">4. Gerenciar Jogo</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>🎮 Controle o andamento do jogo:</p>
+                                                <ol>
+                                                    <li>Acompanhe equipes conectadas</li>
+                                                    <li>Inicie cada rodada</li>
+                                                    <li>Monitore respostas</li>
+                                                    <li>Avance para próxima rodada</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passo 5 -->
+                                    <div class="col-12">
+                                        <div class="card border-danger">
+                                            <div class="card-header bg-danger text-white text-center">
+                                                <h5 class="mb-0">5. Controles do Facilitador</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row text-center">
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="p-3 bg-light rounded">
+                                                            <i class="fas fa-play-circle fa-2x text-success mb-2"></i>
+                                                            <h6>Iniciar Investigação</h6>
+                                                            <small>Inicia o tempo para respostas</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="p-3 bg-light rounded">
+                                                            <i class="fas fa-forward fa-2x text-primary mb-2"></i>
+                                                            <h6>Próxima Rodada</h6>
+                                                            <small>Avança para próximo caso</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="p-3 bg-light rounded">
+                                                            <i class="fas fa-undo fa-2x text-warning mb-2"></i>
+                                                            <h6>Reiniciar Rodada</h6>
+                                                            <small>Recomeça a rodada atual</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="p-3 bg-light rounded">
+                                                            <i class="fas fa-trophy fa-2x text-info mb-2"></i>
+                                                            <h6>Mostrar Ranking</h6>
+                                                            <small>Exibe pódio para todos</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA: Participante -->
+            <div class="tab-pane fade" id="participante" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-10 mx-auto">
+                        <div class="step-card animate-slide-up">
+                            <div class="card-body p-4">
+                                <h2 class="text-center text-success mb-4">
+                                    <i class="fas fa-users me-3"></i>
+                                    Tutorial do Participante
+                                </h2>
+
+                                <div class="row g-4">
+                                    <!-- Passo 1 -->
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-header bg-primary text-white text-center">
+                                                <h5 class="mb-0">1. Entrar na Sala</h5>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-door-open fa-3x text-primary mb-3"></i>
+                                                <ol class="text-start">
+                                                    <li>Acesse a página inicial</li>
+                                                    <li>Clique em "Participante"</li>
+                                                    <li>Digite o código da sala</li>
+                                                    <li>Entre no lobby</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passo 2 -->
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-success">
+                                            <div class="card-header bg-success text-white text-center">
+                                                <h5 class="mb-0">2. Escolher Equipe</h5>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                                                <ol class="text-start">
+                                                    <li>Veja as equipes disponíveis</li>
+                                                    <li>Escolha uma equipe</li>
+                                                    <li>Digite seu nome</li>
+                                                    <li>Entre no jogo</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passo 3 -->
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-warning">
+                                            <div class="card-header bg-warning text-white text-center">
+                                                <h5 class="mb-0">3. Jogar</h5>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-gamepad fa-3x text-warning mb-3"></i>
+                                                <ol class="text-start">
+                                                    <li>Aguarde o caso ser apresentado</li>
+                                                    <li>Analise as alternativas</li>
+                                                    <li>Selecione 2 soluções</li>
+                                                    <li>Envie sua resposta</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Dicas -->
+                                    <div class="col-12">
+                                        <div class="card border-info">
+                                            <div class="card-header bg-info text-white text-center">
+                                                <h5 class="mb-0">💡 Dicas para Participantes</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6>🎯 Estratégia de Jogo:</h6>
+                                                        <ul>
+                                                            <li>Leia atentamente o caso</li>
+                                                            <li>Discuta com sua equipe</li>
+                                                            <li>Analise todas as alternativas</li>
+                                                            <li>Pense como um consultor</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6>🏆 Para Vencer:</h6>
+                                                        <ul>
+                                                            <li>Conheça o portfólio SEBRAE</li>
+                                                            <li>Trabalhe em equipe</li>
+                                                            <li>Seja estratégico nas escolhas</li>
+                                                            <li>Aprenda com cada rodada</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA: Regras -->
+            <div class="tab-pane fade" id="regras" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-10 mx-auto">
+                        <div class="step-card animate-slide-up">
+                            <div class="card-body p-4">
+                                <h2 class="text-center text-warning mb-4">
+                                    <i class="fas fa-scroll me-3"></i>
+                                    Regras do Jogo
+                                </h2>
+
+                                <div class="row g-4">
+                                    <!-- Regras Gerais -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5 class="mb-0">📜 Regras Gerais</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <ul>
+                                                    <li>Jogo composto por 6 rodadas</li>
+                                                    <li>Cada rodada tem um caso diferente</li>
+                                                    <li>Equipes competem entre si</li>
+                                                    <li>Ranking atualizado a cada rodada</li>
+                                                    <li>Vence a equipe com maior pontuação</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sistema de Pontuação -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-success">
+                                            <div class="card-header bg-success text-white">
+                                                <h5 class="mb-0">🏅 Sistema de Pontuação</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <ul>
+                                                    <li><strong>20 pontos</strong> - Acertar as 2 soluções</li>
+                                                    <li><strong>15 pontos</strong> - Acertar 1 solução correta</li>
+                                                    <li><strong>10 pontos</strong> - Acertar 1 solução parcial</li>
+                                                    <li><strong>5 pontos</strong> - Participação ativa</li>
+                                                    <li><strong>Bônus</strong> - Rapidez e consistência</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Durante o Jogo -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-warning">
+                                            <div class="card-header bg-warning text-white">
+                                                <h5 class="mb-0">⏱️ Durante o Jogo</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <ul>
+                                                    <li>Tempo limite por rodada: 2 minutos</li>
+                                                    <li>Selecione EXATAMENTE 2 soluções</li>
+                                                    <li>Respostas são finais após envio</li>
+                                                    <li>Discussão em equipe é incentivada</li>
+                                                    <li>Respeite o tempo dos outros</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Comportamento -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h5 class="mb-0">🤝 Conduta Esperada</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <ul>
+                                                    <li>Respeito entre participantes</li>
+                                                    <li>Colaboração dentro da equipe</li>
+                                                    <li>Espírito esportivo</li>
+                                                    <li>Foco no aprendizado</li>
+                                                    <li>Celebre os acertos de todos</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- FAQ -->
+                                    <div class="col-12">
+                                        <div class="card border-danger">
+                                            <div class="card-header bg-danger text-white">
+                                                <h5 class="mb-0">❓ Perguntas Frequentes</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="accordion" id="faqAccordion">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                                                Posso mudar de equipe durante o jogo?
+                                                            </button>
+                                                        </h2>
+                                                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                                            <div class="accordion-body">
+                                                                <strong>Não.</strong> Após escolher uma equipe e iniciar o jogo, não é possível mudar.
+                                                                Escolha com cuidado!
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                                                E se eu perder a conexão?
+                                                            </button>
+                                                        </h2>
+                                                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                                            <div class="accordion-body">
+                                                                Reconecte-se usando o mesmo código da sala e entre na mesma equipe.
+                                                                Seu progresso será mantido.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                                                Posso jogar sozinho?
+                                                            </button>
+                                                        </h2>
+                                                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                                            <div class="accordion-body">
+                                                                Sim, mas é mais divertido em equipe! O jogo é projetado para
+                                                                trabalho colaborativo e discussão em grupo.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5 animate-slide-up">
+            <div class="card bg-light border-0">
+                <div class="card-body py-5">
+                    <h3 class="text-primary mb-3">Pronto para jogar?</h3>
+                    <p class="text-muted mb-4">Escolha como quer participar da Missão SEBRAE</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play me-2"></i>
+                            Começar a Jogar
+                        </a>
+                        <a href="@Url.Action("Index", "Portfolio")" class="btn btn-success btn-lg">
+                            <i class="fas fa-briefcase me-2"></i>
+                            Ver Soluções SEBRAE
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Rolagem suave para âncoras
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Ativar aba baseada na âncora da URL
+            function activateTabFromHash() {
+                const hash = window.location.hash;
+                if (hash) {
+                    const tabTrigger = document.querySelector(`[data-bs-target="${hash}"]`);
+                    if (tabTrigger) {
+                        new bootstrap.Tab(tabTrigger).show();
+                    }
+                }
+            }
+
+            // Ativar tab quando hash mudar
+            window.addEventListener('hashchange', activateTabFromHash);
+
+            // Ativar tab inicial
+            activateTabFromHash();
+        });
+    </script>
+</body>
+</html>

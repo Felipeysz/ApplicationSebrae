@@ -1,0 +1,674 @@
+﻿@{
+    ViewData["Title"] = "Escolha sua Equipe";
+    var roomCode = ViewBag.RoomCode as string;
+    var teams = ViewBag.Teams as List<ApplicationSebrae.Models.TeamInfo>;
+    var gameStarted = ViewBag.GameStarted as bool? ?? false;
+    var gameStatus = ViewBag.GameStatus as string ?? "setup";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --purple-gradient: linear-gradient(135deg, #9333ea 0%, #c084fc 100%);
+            --pink-gradient: linear-gradient(135deg, #ec4899 0%, #f9a8d4 100%);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --hover-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        /* Estilos Base */
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 10% 20%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+                animation: floatBackground 20s ease-in-out infinite;
+            }
+
+        /* Cards de Equipe */
+        .team-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--card-shadow);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .team-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--primary-gradient);
+                transform: scaleX(0);
+                transition: transform 0.3s ease;
+            }
+
+            .team-card:hover:not(.locked)::before {
+                transform: scaleX(1);
+            }
+
+            .team-card:hover:not(.locked) {
+                transform: translateY(-15px) scale(1.05);
+                box-shadow: var(--hover-shadow);
+                background: white;
+            }
+
+            .team-card.locked {
+                opacity: 0.6;
+                cursor: not-allowed;
+                background: rgba(200, 200, 200, 0.5);
+            }
+
+                .team-card.locked::before {
+                    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+                }
+
+                .team-card.locked .team-icon {
+                    filter: grayscale(100%);
+                }
+
+        /* Informações da Sala */
+        .room-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .room-info::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+        .room-code-display {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 0.5rem;
+            color: #3b82f6;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Ícones das Equipes */
+        .team-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+        }
+
+        .team-card:hover:not(.locked) .team-icon {
+            transform: scale(1.2) rotate(10deg);
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.3));
+        }
+
+        /* Badges de Pontuação */
+        .score-badge {
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover:not(.locked) .score-badge {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Badges de Status */
+        .lock-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .my-team-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            z-index: 10;
+        }
+
+        /* Alertas */
+        .game-started-alert {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 20px;
+            animation: pulseAlert 2s infinite;
+        }
+
+        @@keyframes pulseAlert {
+            0%, 100%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.02);
+        }
+
+        }
+
+        /* Animações */
+        @@keyframes floatBackground {
+            0%, 100%
+
+        {
+            transform: translateY(0px) scale(1);
+        }
+
+        50% {
+            transform: translateY(-20px) scale(1.02);
+        }
+
+        }
+
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @@keyframes popIn {
+            0%
+
+        {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100%
+
+        {
+            transform: translateY(0);
+        }
+
+        40% {
+            transform: translateY(-10px);
+        }
+
+        60% {
+            transform: translateY(-5px);
+        }
+
+        }
+
+        /* Efeito de Brilho nos Cards */
+        .team-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .team-card:hover:not(.locked)::after {
+            opacity: 1;
+            animation: shine 1.5s ease-in-out;
+        }
+
+        @@keyframes shine {
+            0%
+
+        {
+            transform: rotate(45deg) translateX(-100%);
+        }
+
+        100% {
+            transform: rotate(45deg) translateX(100%);
+        }
+
+        }
+
+        /* Botões */
+        .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+            .btn-outline-light:hover {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.8);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+            }
+
+        /* Grid de Equipes */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .room-code-display
+
+        {
+            font-size: 2rem;
+            letter-spacing: 0.3rem;
+        }
+
+        .team-icon {
+            font-size: 3rem;
+        }
+
+        .container {
+            padding: 1rem;
+        }
+
+        .room-info {
+            padding: 1.5rem;
+        }
+
+        .teams-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        }
+
+        @@media (max-width: 576px) {
+            .room-code-display
+
+        {
+            font-size: 1.75rem;
+            letter-spacing: 0.2rem;
+        }
+
+        .team-icon {
+            font-size: 2.5rem;
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5 animate-pop">
+        <!-- Informações da Sala -->
+        <div class="room-info text-center mb-5 animate-slide-up">
+            <h5 class="text-muted mb-3">
+                <i class="fas fa-door-open me-2"></i>
+                Código da Sala
+            </h5>
+            <div class="room-code-display animate-bounce">@roomCode</div>
+            <p class="text-muted mt-3 mb-0">
+                <i class="fas fa-share-alt me-1"></i>
+                Compartilhe este código com os participantes
+            </p>
+        </div>
+
+        <!-- Título Principal -->
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-white mb-3 animate-slide-up">
+                Escolha sua Equipe
+            </h2>
+            <p class="text-white-50 fs-5 animate-slide-up">
+                Selecione a equipe que você deseja representar nesta missão
+            </p>
+        </div>
+
+        @if (gameStarted)
+        {
+            <div class="game-started-alert p-4 mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+                    <div>
+                        <h5 class="mb-1 fw-bold">
+                            <i class="fas fa-lock me-2"></i>
+                            Jogo em Andamento!
+                        </h5>
+                        <p class="mb-0">
+                            O jogo já iniciou. Você só pode acessar o seu time atual.
+                            Novos jogadores não podem entrar neste momento.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Grid de Equipes -->
+        <div class="teams-grid" id="teams-container">
+            @if (teams != null && teams.Any())
+            {
+                var colorSchemes = new[] {
+                        ("primary", "bg-primary"),
+                        ("success", "bg-success"),
+                        ("danger", "bg-danger"),
+                        ("warning", "bg-warning"),
+                        ("info", "bg-info"),
+                        ("purple", "bg-purple"),
+                        ("pink", "bg-pink"),
+                        ("orange", "bg-orange"),
+                        ("teal", "bg-teal")
+                        };
+
+                foreach (var team in teams)
+                {
+                    var colorIndex = teams.IndexOf(team) % colorSchemes.Length;
+                    var (textColor, bgColor) = colorSchemes[colorIndex];
+
+                    <div class="team-card h-100" data-team-id="@team.Id" data-team-name="@team.Name">
+                        <div class="card-body p-5 text-center d-flex flex-column justify-content-between position-relative">
+                            <div>
+                                <div class="team-icon">@team.Icon</div>
+                                <h3 class="card-title h2 text-@textColor mb-3 fw-bold">@team.Name</h3>
+                                <p class="card-text text-muted mb-4">
+                                    Clique para entrar na equipe
+                                </p>
+                            </div>
+
+                            @if (team.Score > 0)
+                            {
+                                <div class="mt-auto">
+                                    <span class="score-badge text-white @bgColor">
+                                        <i class="fas fa-star me-2"></i>
+                                        @team.Score pontos
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mt-auto">
+                                    <span class="score-badge bg-light text-dark">
+                                        <i class="fas fa-rocket me-2"></i>
+                                        Nova equipe
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Estado Vazio -->
+                <div class="col-12 text-center animate-slide-up">
+                    <div class="alert alert-warning py-5">
+                        <div class="display-1 mb-4">👥</div>
+                        <h5 class="fw-bold mb-3">Nenhuma equipe disponível</h5>
+                        <p class="mb-4">Aguarde o facilitador configurar as equipes para esta sala.</p>
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Botão Voltar -->
+        <div class="text-center mt-5 animate-slide-up">
+            <a href="@Url.Action("RoomAccess")" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Voltar para Acesso à Sala
+            </a>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        const roomCode = '@roomCode';
+        const gameStarted = @(gameStarted ? "true" : "false");
+        const gameStatus = '@gameStatus';
+
+        let userCurrentTeam = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Efeito de digitação no código da sala
+            const roomCodeElement = document.querySelector('.room-code-display');
+            const originalText = roomCodeElement.textContent;
+            roomCodeElement.textContent = '';
+
+            let i = 0;
+            function typeWriter() {
+                if (i < originalText.length) {
+                    roomCodeElement.textContent += originalText.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                }
+            }
+
+            setTimeout(typeWriter, 500);
+
+            // Verificar status do jogo e times
+            if (gameStarted) {
+                await checkUserTeamStatus();
+            }
+
+            // Event listeners para seleção de time
+            document.querySelectorAll('.team-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    if (!this.classList.contains('locked')) {
+                        const teamId = this.getAttribute('data-team-id');
+                        const teamName = this.getAttribute('data-team-name');
+                        selectTeam(teamId, teamName);
+                    }
+                });
+            });
+
+            // Atualização automática da lista de equipes
+            setInterval(async function() {
+                try {
+                    const response = await fetch(`/Home/GetTeams?roomCode=${roomCode}`);
+                    const data = await response.json();
+
+                    if (data.success && data.teams.length !== @(teams?.Count ?? 0)) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar equipes:', error);
+                }
+            }, 5000);
+        });
+
+        async function checkUserTeamStatus() {
+            try {
+                // Verificar em qual time o usuário está
+                const teams = document.querySelectorAll('.team-card');
+
+                for (const card of teams) {
+                    const teamId = card.getAttribute('data-team-id');
+                    const userId = localStorage.getItem(`userId_${roomCode}_${teamId}`);
+
+                    if (userId) {
+                        // Verificar se este usuário pode acessar este time
+                        const response = await fetch(`/Home/CheckTeamAccess?roomCode=${roomCode}&teamId=${teamId}&userId=${userId}`);
+                        const data = await response.json();
+
+                        if (data.success && data.canJoin) {
+                            // Este é o time do usuário
+                            userCurrentTeam = teamId;
+                            markAsMyTeam(card);
+                        } else {
+                            // Bloquear este time
+                            lockTeam(card);
+                        }
+                    } else {
+                        // Usuário não está neste time - bloquear
+                        lockTeam(card);
+                    }
+                }
+
+                // Se nenhum time foi identificado como do usuário, bloquear todos
+                if (!userCurrentTeam) {
+                    document.querySelectorAll('.team-card').forEach(lockTeam);
+                    showNoTeamWarning();
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status dos times:', error);
+            }
+        }
+
+        function markAsMyTeam(card) {
+            const badge = document.createElement('div');
+            badge.className = 'my-team-badge';
+            badge.innerHTML = '<i class="fas fa-check-circle"></i> Seu Time';
+            card.querySelector('.card-body').appendChild(badge);
+        }
+
+        function lockTeam(card) {
+            card.classList.add('locked');
+
+            const overlay = document.createElement('div');
+            overlay.className = 'lock-overlay';
+            overlay.innerHTML = '<i class="fas fa-lock"></i> Bloqueado';
+            card.querySelector('.card-body').appendChild(overlay);
+        }
+
+        function showNoTeamWarning() {
+            const container = document.getElementById('teams-container');
+            const warning = document.createElement('div');
+            warning.className = 'col-12';
+            warning.innerHTML = `
+                <div class="alert alert-warning text-center" role="alert">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h5 class="alert-heading">Sem Acesso</h5>
+                    <p class="mb-0">
+                        O jogo já iniciou e você não está registrado em nenhum time desta sala.
+                        Entre em contato com o facilitador para mais informações.
+                    </p>
+                </div>
+            `;
+            container.insertBefore(warning, container.firstChild);
+        }
+
+        async function selectTeam(teamId, teamName) {
+            if (gameStarted && userCurrentTeam && userCurrentTeam !== teamId) {
+                alert('O jogo já iniciou! Você só pode acessar o seu time atual.');
+                return;
+            }
+
+            // Redirecionar para a tela do time
+            window.location.href = `/Home/TeamGame?roomCode=${roomCode}&teamId=${teamId}`;
+        }
+    </script>
+</body>
+</html>

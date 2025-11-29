@@ -1,0 +1,424 @@
+﻿@{
+    ViewData["Title"] = "Admin Login - Portfólio";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS para consistência */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #003d7a 0%, #0056a3 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --hover-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        /* Background animado */
+        .login-container {
+            min-height: 100vh;
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .login-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.1"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>') no-repeat center center;
+                background-size: cover;
+            }
+
+        /* Card de Login */
+        .login-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+            .login-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: var(--primary-gradient);
+            }
+
+            .login-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        .login-header {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 25px 25px 0 0;
+            border: none;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .login-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+                transform: rotate(45deg);
+                animation: shine 3s infinite;
+            }
+
+        @@keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .login-body {
+            padding: 2.5rem;
+        }
+
+        /* Botões */
+        .portfolio-btn {
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            padding: 0.75rem 2rem;
+        }
+
+            .portfolio-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .portfolio-btn:hover::before {
+                left: 100%;
+            }
+
+            .portfolio-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            box-shadow: 0 8px 25px rgba(0, 61, 122, 0.4);
+        }
+
+        /* Formulário */
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #003d7a;
+                box-shadow: 0 0 0 0.2rem rgba(0, 61, 122, 0.25);
+                transform: translateY(-2px);
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #003d7a;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alertas */
+        .alert {
+            border-radius: 15px;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
+        }
+
+        /* Elementos decorativos */
+        .admin-badge {
+            display: inline-block;
+            background: var(--warning-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+            border: 2px solid rgba(255,255,255,0.3);
+            font-size: 0.9rem;
+        }
+
+        .security-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Animações */
+        .animate-pop {
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.5s both;
+        }
+
+        @@keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Links */
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .back-link:hover {
+                color: #003d7a;
+                transform: translateX(-5px);
+            }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .login-body {
+                padding: 2rem;
+            }
+
+            .login-header {
+                padding: 1.5rem;
+            }
+
+            .security-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .login-body {
+                padding: 1.5rem;
+            }
+
+            .portfolio-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="login-card animate-pop">
+                        <div class="login-header">
+                            <div class="security-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="mb-2 fw-bold">🔐 Área Administrativa</h3>
+                            <p class="mb-0 opacity-75">Portfólio de Soluções SEBRAE</p>
+                            <div class="admin-badge animate-fade-in">
+                                ⚡ Acesso Restrito
+                            </div>
+                        </div>
+
+                        <div class="login-body">
+                            @if (TempData["Error"] != null)
+                            {
+                                <div class="alert alert-danger animate-slide-up mb-4">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    @TempData["Error"]
+                                </div>
+                            }
+
+                            <form method="post" class="animate-slide-up">
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">
+                                        <i class="fas fa-key me-2"></i>
+                                        Senha de Administrador
+                                    </label>
+                                    <input type="password"
+                                           class="form-control"
+                                           id="password"
+                                           name="password"
+                                           required
+                                           placeholder="Digite sua senha de acesso">
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Acesso restrito à equipe autorizada
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 portfolio-btn mb-3">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Acessar Sistema
+                                </button>
+
+                                <a href="@Url.Action("Index", "Portfolio")" class="back-link">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Voltar ao Portfólio
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Foco automático no campo de senha
+            document.getElementById('password').focus();
+
+            // Efeito de digitação no placeholder
+            const passwordField = document.getElementById('password');
+            const placeholders = [
+                "Digite sua senha de administrador...",
+                "Acesso restrito à equipe autorizada...",
+                "Use a senha fornecida pelo sistema..."
+            ];
+
+            let currentPlaceholder = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let typingSpeed = 100;
+
+            function typePlaceholder() {
+                const currentText = placeholders[currentPlaceholder];
+
+                if (isDeleting) {
+                    passwordField.placeholder = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+                    typingSpeed = 50;
+                } else {
+                    passwordField.placeholder = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+                    typingSpeed = 100;
+                }
+
+                if (!isDeleting && charIndex === currentText.length) {
+                    isDeleting = true;
+                    typingSpeed = 1000; // Pausa no final
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    currentPlaceholder = (currentPlaceholder + 1) % placeholders.length;
+                    typingSpeed = 500; // Pausa antes de começar novo
+                }
+
+                setTimeout(typePlaceholder, typingSpeed);
+            }
+
+            // Iniciar efeito de digitação
+            setTimeout(typePlaceholder, 1000);
+
+            // Efeito de validação no submit
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const password = document.getElementById('password').value;
+                if (!password) {
+                    e.preventDefault();
+                    document.getElementById('password').focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

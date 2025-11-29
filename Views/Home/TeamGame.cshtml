@@ -1,0 +1,960 @@
+﻿@model ApplicationSebrae.ViewModels.TeamGameViewModel
+@{
+    ViewData["Title"] = $"Time {Model.TeamName} - Sala {Model.RoomCode}";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        .main-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .status-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+            .timer-display.warning {
+                animation: pulse 1s infinite;
+            }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .submission-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .investigation-active {
+            border-left: 5px solid #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .waiting-state {
+            opacity: 0.7;
+        }
+
+        .alternatives-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .alternative-checkbox {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            user-select: none;
+        }
+
+            .alternative-checkbox:hover:not(.disabled) {
+                border-color: #3b82f6;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .alternative-checkbox.selected {
+                border-color: #10b981;
+                background: rgba(16, 185, 129, 0.05);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+            }
+
+            .alternative-checkbox.disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+
+        .form-check-input:checked {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        .cesta-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .info-alert {
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+        }
+
+        .submit-btn {
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .submit-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: none;
+        }
+
+            .connection-status.offline {
+                display: block;
+                background: #ef4444;
+                color: white;
+            }
+
+        .detailed-results-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .detailed-results-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 1rem;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+            .detailed-results-btn:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5) !important;
+                color: white;
+            }
+
+            .detailed-results-btn:active {
+                transform: translateY(-2px);
+            }
+
+        .game-finished-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Estilos para o controle de música */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .music-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .music-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            }
+
+            .music-btn.muted {
+                background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Controle de Música -->
+    <div class="music-control">
+        <button id="music-toggle" class="music-btn">
+            <i class="fas fa-volume-up"></i>
+        </button>
+    </div>
+
+    <!-- Elemento de Áudio (oculto) -->
+    <audio id="background-music" loop>
+        <source src="~/midia/GameShowGroove.mp3" type="audio/mp3">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">🎯 Missão SEBRAE</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-card shadow-lg">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">@GetTeamIcon(Model.TeamId)</div>
+                            <h2 class="display-5 fw-bold text-primary mb-3">@Model.TeamName</h2>
+                            <p class="text-muted fs-5" id="round-info">
+                                <i class="fas fa-flag me-2"></i>Missão <span id="current-round">1</span> de <span id="total-rounds">6</span>
+                            </p>
+                            <div class="progress mb-3" style="height: 10px;">
+                                <div id="progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 16.67%"></div>
+                            </div>
+                            <p class="status-badge bg-secondary text-white" id="game-status-badge">
+                                <i class="fas fa-clock me-2"></i>Aguardando...
+                            </p>
+                            <div id="investigation-timer" class="timer-display" style="display: none;">
+                                ⏱️ Tempo: <span id="time-remaining">2:00</span>
+                            </div>
+                        </div>
+
+                        <div id="dossier-content" class="waiting-state">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                <p class="mt-4 text-muted fs-5"><i class="fas fa-hourglass-half me-2"></i>Aguardando início...</p>
+                            </div>
+                        </div>
+
+                        <div id="submission-confirmation" style="display: none;">
+                            <div class="submission-success">
+                                <div class="feature-icon">✅</div>
+                                <h3 class="h2 fw-bold text-success mb-3">Resposta Enviada!</h3>
+                                <p class="text-muted">Aguardando próxima fase...</p>
+                            </div>
+                        </div>
+
+                        <div id="team-waiting-section" class="text-center py-5" style="display: none;">
+                            <div class="feature-icon">⏳</div>
+                            <h3 class="h2 fw-bold text-primary mb-3">Resposta Enviada!</h3>
+                            <p class="lead mb-4">Aguardando outros times...</p>
+                            <div class="spinner-border text-primary mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="connection-status" id="connection-status">
+        <i class="fas fa-wifi-slash me-2"></i>Sem conexão
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notification-toast" class="toast">
+            <div class="toast-header">
+                <strong class="me-auto">Missão SEBRAE</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const roomCode = '@Model.RoomCode';
+        const teamId = '@Model.TeamId';
+
+        // Sistema de Música Sincronizada
+        const musicManager = {
+            audio: document.getElementById('background-music'),
+            toggleBtn: document.getElementById('music-toggle'),
+            isMuted: localStorage.getItem('musicMuted') === 'true',
+            hasStarted: false,
+            lastSyncTime: 0,
+            syncInterval: null,
+
+            init() {
+                // Configurar evento de clique no botão
+                this.toggleBtn.addEventListener('click', () => this.toggleMusic());
+
+                // Aplicar estado salvo do mute
+                this.applyMuteState();
+
+                // Tentar iniciar a música automaticamente (com interação do usuário)
+                document.addEventListener('click', () => this.startMusicOnInteraction(), { once: true });
+
+                // Iniciar sincronização com o servidor
+                this.startSync();
+
+                // Parar música quando o jogo terminar
+                this.setupGameEndListener();
+            },
+
+            startMusicOnInteraction() {
+                if (!this.hasStarted) {
+                    this.startMusic();
+                }
+            },
+
+            async startMusic() {
+                if (this.audio && !this.hasStarted) {
+                    try {
+                        // Primeiro sincroniza com o servidor
+                        await this.syncWithServer();
+
+                        this.audio.volume = this.isMuted ? 0 : 0.5;
+                        await this.audio.play();
+                        this.hasStarted = true;
+                        console.log('Música iniciada e sincronizada');
+                    } catch (error) {
+                        console.log('Erro ao iniciar música:', error);
+                        // Fallback: iniciar sem sincronização
+                        this.audio.volume = this.isMuted ? 0 : 0.5;
+                        this.audio.play().then(() => {
+                            this.hasStarted = true;
+                        }).catch(console.error);
+                    }
+                }
+            },
+
+            async syncWithServer() {
+                try {
+                    const response = await fetch(`/Home/GetMusicState?roomCode=${roomCode}`);
+                    const data = await response.json();
+
+                    if (data.success && data.isPlaying) {
+                        // Sincronizar o tempo de reprodução
+                        const currentTime = this.audio.currentTime;
+                        const serverTime = data.currentTime;
+                        const timeDiff = Math.abs(currentTime - serverTime);
+
+                        // Se a diferença for maior que 2 segundos, sincronizar
+                        if (timeDiff > 2) {
+                            this.audio.currentTime = serverTime;
+                            console.log(`Música sincronizada: ${serverTime.toFixed(2)}s`);
+                        }
+
+                        this.lastSyncTime = serverTime;
+                    }
+                } catch (error) {
+                    console.log('Erro na sincronização da música:', error);
+                }
+            },
+
+            startSync() {
+                // Sincronizar a cada 10 segundos
+                this.syncInterval = setInterval(() => {
+                    if (this.hasStarted && !this.audio.paused) {
+                        this.syncWithServer();
+                    }
+                }, 10000);
+            },
+
+            toggleMusic() {
+                if (this.audio) {
+                    this.isMuted = !this.isMuted;
+
+                    if (this.isMuted) {
+                        // Mutar
+                        this.audio.volume = 0;
+                        this.toggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                        this.toggleBtn.classList.add('muted');
+                    } else {
+                        // Desmutar
+                        this.audio.volume = 0.5;
+                        this.toggleBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                        this.toggleBtn.classList.remove('muted');
+                    }
+
+                    // Salvar preferência
+                    localStorage.setItem('musicMuted', this.isMuted.toString());
+                }
+            },
+
+            applyMuteState() {
+                if (this.isMuted) {
+                    this.audio.volume = 0;
+                    this.toggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    this.toggleBtn.classList.add('muted');
+                } else {
+                    this.audio.volume = 0.5;
+                    this.toggleBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    this.toggleBtn.classList.remove('muted');
+                }
+            },
+
+            stopMusic() {
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                    this.hasStarted = false;
+                    if (this.syncInterval) {
+                        clearInterval(this.syncInterval);
+                    }
+                }
+            },
+
+            setupGameEndListener() {
+                // Observar mudanças no estado do jogo para parar a música quando terminar
+                const originalCheckGameState = game.checkGameState;
+                game.checkGameState = async function() {
+                    await originalCheckGameState.apply(this, arguments);
+
+                    // Verificar se o jogo terminou
+                    if (state.gameFinished) {
+                        setTimeout(() => {
+                            musicManager.stopMusic();
+                        }, 3000);
+                    }
+                };
+            }
+        };
+
+        const state = {
+            selectedAlternatives: [],
+            hasSubmitted: false,
+            currentRound: 0,
+            lastLoadedRound: -1,
+            isSubmitting: false,
+            userName: localStorage.getItem('userName') || '',
+            userId: localStorage.getItem('userId_@(Model.RoomCode)_@(Model.TeamId)') || '',
+            timer: null,
+            timeRemaining: 120,
+            gameFinished: false,
+            lastResetTime: null
+        };
+
+        const ui = {
+            showNotification(message, type = 'info') {
+                const toast = document.getElementById('notification-toast');
+                const toastBody = document.getElementById('toast-message');
+                if (!toast || !toastBody) return;
+                toastBody.textContent = message;
+                new bootstrap.Toast(toast, { delay: 4000 }).show();
+            },
+
+            toggleAlternative(index) {
+                if (state.hasSubmitted || state.isSubmitting) return;
+
+                const altDiv = document.getElementById(`alt-${index}`);
+                const checkbox = document.getElementById(`check-${index}`);
+                if (!altDiv || !checkbox) return;
+
+                if (state.selectedAlternatives.includes(index)) {
+                    state.selectedAlternatives = state.selectedAlternatives.filter(i => i !== index);
+                    altDiv.classList.remove('selected');
+                    checkbox.checked = false;
+                } else {
+                    if (state.selectedAlternatives.length >= 2) {
+                        ui.showNotification('Máximo 2 alternativas', 'warning');
+                        return;
+                    }
+                    state.selectedAlternatives.push(index);
+                    altDiv.classList.add('selected');
+                    checkbox.checked = true;
+                }
+                ui.updateSubmitButton();
+            },
+
+            updateSubmitButton() {
+                const submitBtn = document.getElementById('submit-answer-btn');
+                const counter = document.getElementById('selection-counter');
+
+                if (counter) {
+                    counter.textContent = `${state.selectedAlternatives.length} de 2 selecionadas`;
+                    counter.className = `badge ${state.selectedAlternatives.length === 2 ? 'bg-success' : 'bg-primary'} fs-6`;
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = state.selectedAlternatives.length !== 2 || state.hasSubmitted;
+
+                    if (state.hasSubmitted) {
+                        submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Resposta Enviada';
+                        submitBtn.className = 'btn btn-secondary submit-btn';
+                    } else {
+                        submitBtn.innerHTML = state.selectedAlternatives.length === 2 ?
+                            '<i class="fas fa-paper-plane me-2"></i>Enviar Resposta' :
+                            `<i class="fas fa-check me-2"></i>Selecione ${2 - state.selectedAlternatives.length} mais`;
+                        submitBtn.className = 'btn btn-success submit-btn';
+                    }
+                }
+            },
+
+            disableInteraction() {
+                const allCheckboxes = document.querySelectorAll('.alternative-checkbox');
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.classList.add('disabled');
+                    checkbox.style.pointerEvents = 'none';
+                    checkbox.style.opacity = '0.6';
+                });
+
+                const submitBtn = document.getElementById('submit-answer-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Resposta Enviada';
+                    submitBtn.className = 'btn btn-secondary submit-btn';
+                }
+            },
+
+            enableInteraction() {
+                const allCheckboxes = document.querySelectorAll('.alternative-checkbox');
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.classList.remove('disabled');
+                    checkbox.style.pointerEvents = 'auto';
+                    checkbox.style.opacity = '1';
+                });
+
+                ui.updateSubmitButton();
+            },
+
+            showNameModal() {
+                const modalHtml = `
+                    <div class="modal fade" id="nameModal" data-bs-backdrop="static">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title">Identificação</h5>
+                                </div>
+                                <div class="modal-body text-center py-4">
+                                    <i class="fas fa-user-circle text-primary" style="font-size: 4rem;"></i>
+                                    <h4 class="mt-3 mb-4">Bem-vindo ao Time @Model.TeamName!</h4>
+                                    <input type="text" class="form-control form-control-lg text-center"
+                                           id="userNameInput" placeholder="Digite seu nome" maxlength="50" required>
+                                </div>
+                                <div class="modal-footer justify-content-center">
+                                    <button type="button" class="btn btn-primary btn-lg px-5" id="submit-name-btn">Entrar no Jogo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                const modal = new bootstrap.Modal(document.getElementById('nameModal'));
+
+                document.getElementById('submit-name-btn').onclick = () => {
+                    const userName = document.getElementById('userNameInput').value.trim();
+                    if (userName.length < 2) {
+                        ui.showNotification('Digite um nome válido', 'warning');
+                        return;
+                    }
+                    state.userName = userName;
+                    localStorage.setItem('userName', userName);
+                    modal.hide();
+                    game.joinTeam();
+                };
+                modal.show();
+                document.getElementById('userNameInput').focus();
+            },
+
+            resetForNewRound() {
+                state.selectedAlternatives = [];
+                state.hasSubmitted = false;
+                state.isSubmitting = false;
+                document.getElementById('dossier-content').style.display = 'block';
+                document.getElementById('submission-confirmation').style.display = 'none';
+                document.getElementById('team-waiting-section').style.display = 'none';
+
+                ui.enableInteraction();
+            },
+
+            renderDossier(dossier) {
+                const content = document.getElementById('dossier-content');
+                if (!dossier) return;
+
+                let html = `
+                    <div class="mb-5 investigation-active p-4 rounded">
+                        <h3 class="h1 fw-bold text-center mb-4 text-primary">${dossier.title}</h3>
+                        <div class="info-alert p-4 mb-4">
+                            <p class="mb-3"><strong>Empreendedor:</strong> ${dossier.name}</p>
+                            <p class="mb-3"><strong>Contexto:</strong> ${dossier.description}</p>
+                            <p class="mb-3"><strong>Desafio:</strong> ${dossier.challenge}</p>
+                            <p class="mb-0"><strong>Objetivo:</strong> ${dossier.objective}</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="h4 fw-semibold mb-4 text-center">Selecione as 2 melhores soluções:</h4>
+                        <div class="alternatives-grid">`;
+
+                dossier.alternatives.forEach((alt, idx) => {
+                    const sel = state.selectedAlternatives.includes(idx);
+                    const disabled = state.hasSubmitted ? 'disabled' : '';
+                    html += `
+                        <div class="alternative-checkbox ${sel ? 'selected' : ''} ${disabled}" onclick="ui.toggleAlternative(${idx})" id="alt-${idx}">
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" id="check-${idx}" ${sel ? 'checked' : ''} ${disabled} onclick="event.stopPropagation()">
+                                <label class="form-check-label fs-5 fw-medium">${alt}</label>
+                            </div>
+                        </div>`;
+                });
+
+                html += `
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="badge bg-primary fs-6 mb-3" id="selection-counter">${state.selectedAlternatives.length} de 2 selecionadas</div>
+                            <div><button id="submit-answer-btn" class="btn btn-success submit-btn" ${state.hasSubmitted ? 'disabled' : ''}>Selecione 2 mais</button></div>
+                        </div>
+                    </div>`;
+
+                content.innerHTML = html;
+                document.getElementById('submit-answer-btn').onclick = () => game.submitAnswer();
+
+                if (state.hasSubmitted) {
+                    ui.disableInteraction();
+                }
+
+                ui.updateSubmitButton();
+            },
+
+            showGameFinished() {
+                const content = document.getElementById('dossier-content');
+                content.innerHTML = `
+                    <div class="game-finished-section text-center py-5">
+                        <div class="feature-icon">🏆</div>
+                        <h3 class="h2 fw-bold text-success mb-3">Jogo Finalizado!</h3>
+                        <p class="lead mb-4">Obrigado por participar da Missão SEBRAE!</p>
+
+                        <div class="detailed-results-section mt-4">
+                            <h5 class="text-center mb-3">
+                                <i class="fas fa-clipboard-list me-2"></i>
+                                Quer ver seus acertos e erros?
+                            </h5>
+                            <p class="text-center text-muted mb-3">
+                                Veja uma análise detalhada de cada rodada, incluindo quais alternativas você acertou,
+                                quais errou e as explicações corretas.
+                            </p>
+                            <div class="text-center">
+                                <a id="view-detailed-results-link"
+                                   href="/Home/TeamDetailedResults?roomCode=${roomCode}&teamId=${teamId}"
+                                   class="btn btn-lg w-100 detailed-results-btn">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>Ver Análise Completa dos Resultados</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>`;
+
+                content.style.display = 'block';
+                document.getElementById('team-waiting-section').style.display = 'none';
+                document.getElementById('submission-confirmation').style.display = 'none';
+            }
+        };
+
+        const game = {
+            async joinTeam() {
+                const response = await fetch('/Home/JoinTeam', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomCode: roomCode,
+                        teamId: teamId,
+                        userId: state.userId,
+                        userName: state.userName
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    state.userId = data.userId;
+                    localStorage.setItem('userId_@(Model.RoomCode)_@(Model.TeamId)', data.userId);
+                    ui.showNotification(`Bem-vindo, ${state.userName}!`, 'success');
+                    game.startPolling();
+                } else {
+                    ui.showNotification(data.message, 'danger');
+                }
+            },
+
+            async checkSubmissionStatus() {
+                try {
+                    const response = await fetch(`/Home/CheckTeamSubmission?roomCode=${roomCode}&teamId=${teamId}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        state.hasSubmitted = data.hasSubmitted;
+
+                        if (data.hasSubmitted) {
+                            console.log('Time já submeteu resposta nesta rodada');
+                            ui.disableInteraction();
+                            document.getElementById('team-waiting-section').style.display = 'block';
+                            document.getElementById('dossier-content').style.display = 'none';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar status de submissão:', error);
+                }
+            },
+
+            async submitAnswer() {
+                if (state.selectedAlternatives.length !== 2 || state.isSubmitting || state.hasSubmitted) return;
+
+                state.isSubmitting = true;
+                const submitBtn = document.getElementById('submit-answer-btn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+
+                try {
+                    const voteResponse = await fetch('/Home/SubmitVote', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            roomCode: roomCode,
+                            userId: state.userId,
+                            teamId: teamId,
+                            selectedAlternatives: state.selectedAlternatives,
+                            round: state.currentRound
+                        })
+                    });
+                    const voteData = await voteResponse.json();
+
+                    if (!voteData.success) {
+                        ui.showNotification(voteData.message, 'danger');
+                        submitBtn.disabled = false;
+                        ui.updateSubmitButton();
+                        state.isSubmitting = false;
+                        return;
+                    }
+
+                    const teamResponse = await fetch('/Home/SubmitTeamAnswer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            roomCode: roomCode,
+                            teamId: teamId,
+                            round: state.currentRound
+                        })
+                    });
+                    const teamData = await teamResponse.json();
+
+                    if (teamData.success) {
+                        state.hasSubmitted = true;
+                        ui.disableInteraction();
+                        document.getElementById('dossier-content').style.display = 'none';
+                        document.getElementById('team-waiting-section').style.display = 'block';
+
+                        ui.showNotification(teamData.message, teamData.correct ? 'success' : 'warning');
+
+                        if (teamData.advancedToNextRound) {
+                            setTimeout(() => {
+                                ui.showNotification('Todos responderam! Avançando...', 'info');
+                            }, 1500);
+                        }
+                    } else {
+                        ui.showNotification(teamData.message, 'danger');
+                        submitBtn.disabled = false;
+                        ui.updateSubmitButton();
+                    }
+                } catch (error) {
+                    console.error('Erro ao submeter:', error);
+                    ui.showNotification('Erro de conexão', 'danger');
+                    submitBtn.disabled = false;
+                    ui.updateSubmitButton();
+                } finally {
+                    state.isSubmitting = false;
+                }
+            },
+
+            async checkGameState() {
+                try {
+                    const response = await fetch(`/Home/GetGameState?roomCode=${roomCode}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const roundChanged = state.currentRound !== data.currentRound;
+
+                        if (data.resetTime && data.resetTime !== state.lastResetTime) {
+                            console.log('Rodada foi resetada pelo facilitador');
+                            state.lastResetTime = data.resetTime;
+                            ui.resetForNewRound();
+                            ui.showNotification('A rodada foi reiniciada! Você pode responder novamente.', 'info');
+                            await this.loadDossier(data.currentRound);
+                            state.lastLoadedRound = data.currentRound;
+                        }
+
+                        if (roundChanged && data.currentRound > state.currentRound) {
+                            console.log(`Rodada mudou: ${state.currentRound} -> ${data.currentRound}`);
+                            ui.resetForNewRound();
+                            ui.showNotification(`Nova rodada ${data.currentRound + 1} iniciada!`, 'info');
+                        }
+
+                        state.currentRound = data.currentRound;
+                        document.getElementById('current-round').textContent = state.currentRound + 1;
+                        document.getElementById('progress-bar').style.width = ((state.currentRound + 1) / 6 * 100) + '%';
+
+                        const badge = document.getElementById('game-status-badge');
+                        badge.textContent = this.getStatusText(data.gameStatus);
+                        badge.className = `status-badge ${this.getStatusClass(data.gameStatus)}`;
+
+                        if ((data.gameStatus === 'presentation' || data.gameStatus === 'investigation') &&
+                            state.lastLoadedRound !== state.currentRound) {
+                            await this.loadDossier(state.currentRound);
+                            state.lastLoadedRound = state.currentRound;
+
+                            await this.checkSubmissionStatus();
+                        }
+
+                        if (state.hasSubmitted && data.gameStatus === 'investigation') {
+                            document.getElementById('dossier-content').style.display = 'none';
+                            document.getElementById('team-waiting-section').style.display = 'block';
+                            document.getElementById('submission-confirmation').style.display = 'none';
+                        }
+
+                        if (data.gameStatus === 'finished' && !state.gameFinished) {
+                            state.gameFinished = true;
+                            ui.showGameFinished();
+                        }
+
+                        // Controlar música baseado no estado do jogo
+                        this.controlMusic(data.gameStatus);
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar estado:', error);
+                }
+            },
+
+            controlMusic(gameStatus) {
+                if (gameStatus === 'investigation' || gameStatus === 'presentation') {
+                    if (!musicManager.hasStarted) {
+                        musicManager.startMusic();
+                    }
+                } else if (gameStatus === 'finished') {
+                    setTimeout(() => {
+                        musicManager.stopMusic();
+                    }, 3000);
+                }
+            },
+
+            async loadDossier(round) {
+                try {
+                    const response = await fetch(`/Home/GetDossier?roomCode=${roomCode}&round=${round}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        ui.renderDossier(data.dossier);
+                    }
+                } catch (error) {
+                    ui.showNotification('Erro ao carregar missão', 'danger');
+                }
+            },
+
+            getStatusText(status) {
+                const map = {
+                    'setup': 'Aguardando...',
+                    'presentation': 'Apresentação do Caso',
+                    'investigation': 'Investigação em Andamento',
+                    'results': 'Resultados',
+                    'finished': 'Jogo Finalizado'
+                };
+                return map[status] || 'Aguardando...';
+            },
+
+            getStatusClass(status) {
+                const map = {
+                    'setup': 'bg-secondary text-white',
+                    'presentation': 'bg-info text-white',
+                    'investigation': 'bg-success text-white',
+                    'results': 'bg-warning text-dark',
+                    'finished': 'bg-dark text-white'
+                };
+                return map[status] || 'bg-secondary text-white';
+            },
+
+            startPolling() {
+                setInterval(() => game.checkGameState(), 3000);
+                game.checkGameState();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar o sistema de música
+            musicManager.init();
+
+            if (!state.userName) {
+                ui.showNameModal();
+            } else {
+                game.joinTeam();
+            }
+        });
+    </script>
+</body>
+</html>
+
+@functions {
+    string GetTeamIcon(string teamId)
+    {
+        var iconMap = new Dictionary<string, string> {
+            { "team_1", "🚀" }, { "team_2", "🌟" }, { "team_3", "💎" }, { "team_4", "⚡" },
+            { "team_5", "🔥" }, { "team_6", "🎯" }, { "team_7", "🏆" }, { "team_8", "💪" }
+        };
+        return iconMap.ContainsKey(teamId) ? iconMap[teamId] : "👥";
+    }
+}

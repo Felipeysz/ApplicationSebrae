@@ -1,0 +1,890 @@
+﻿@model Product
+@{
+    ViewData["Title"] = "Novo Produto - Portfólio";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS para consistência */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #003d7a 0%, #0056a3 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --hover-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        /* Background animado */
+        .form-container {
+            min-height: 100vh;
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+            .form-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.1"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>') no-repeat center center;
+                background-size: cover;
+            }
+
+        /* Card do Formulário */
+        .form-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+            .form-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: var(--success-gradient);
+            }
+
+            .form-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        .form-header {
+            background: var(--success-gradient);
+            color: white;
+            border-radius: 25px 25px 0 0;
+            border: none;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+                transform: rotate(45deg);
+                animation: shine 3s infinite;
+            }
+
+        @@keyframes shine {
+            0%
+
+        {
+            transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+
+        100% {
+            transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        /* Botões */
+        .portfolio-btn {
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            padding: 0.75rem 2rem;
+        }
+
+            .portfolio-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .portfolio-btn:hover::before {
+                left: 100%;
+            }
+
+            .portfolio-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            background: transparent;
+        }
+
+            .btn-outline-secondary:hover {
+                background: #6c757d;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+            }
+
+        /* Formulário */
+        .form-control, .form-select {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #28a745;
+                box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+                transform: translateY(-2px);
+                background: white;
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #003d7a;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required::after {
+            content: '*';
+            color: #dc3545;
+            margin-left: 0.25rem;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        /* Checkbox personalizado */
+        .form-check-input {
+            width: 1.2em;
+            height: 1.2em;
+            border-radius: 0.25em;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+            .form-check-input:checked {
+                background-color: #28a745;
+                border-color: #28a745;
+                box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            }
+
+        .form-check-label {
+            font-weight: 500;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        /* Seções do formulário */
+        .form-section {
+            background: rgba(0, 61, 122, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--success-gradient);
+        }
+
+        .section-title {
+            color: #003d7a;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Badges informativos */
+        .info-badge {
+            display: inline-block;
+            background: var(--info-gradient);
+            color: #003d7a;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(168, 237, 234, 0.4);
+        }
+
+        /* Contador de caracteres */
+        .char-counter {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+
+            .char-counter.warning {
+                color: #ffc107;
+                font-weight: 600;
+            }
+
+            .char-counter.danger {
+                color: #dc3545;
+                font-weight: 700;
+            }
+
+        /* Animações */
+        .animate-pop {
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.5s both;
+        }
+
+        .animate-stagger > * {
+            opacity: 0;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+            .animate-stagger > *:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .animate-stagger > *:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .animate-stagger > *:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .animate-stagger > *:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .animate-stagger > *:nth-child(5) {
+                animation-delay: 0.5s;
+            }
+
+            .animate-stagger > *:nth-child(6) {
+                animation-delay: 0.6s;
+            }
+
+        @@keyframes popIn {
+            0%
+
+        {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Preview do produto */
+        .preview-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 2px dashed #28a745;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+            .preview-card.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        /* Validação */
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .form-body {
+                padding: 2rem;
+            }
+
+            .form-header {
+                padding: 1.5rem;
+            }
+
+            .form-section {
+                padding: 1rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            .portfolio-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .form-container {
+                padding: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="form-card animate-pop">
+                        <div class="form-header">
+                            <div class="display-4 mb-3">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <h2 class="mb-2 fw-bold">➕ Novo Produto</h2>
+                            <p class="mb-0 opacity-75">Adicione um novo produto ao Portfólio SEBRAE</p>
+                            <div class="info-badge animate-fade-in mt-3">
+                                ⚡ Preencha todos os campos obrigatórios
+                            </div>
+                        </div>
+
+                        <div class="form-body">
+                            <form method="post" id="productForm" class="animate-slide-up">
+                                <!-- Seção: Informações Básicas -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-info-circle"></i>
+                                        Informações Básicas
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Codigo" class="form-label">
+                                                    <i class="fas fa-barcode"></i>
+                                                    Código do Produto
+                                                </label>
+                                                <input asp-for="Codigo" class="form-control"
+                                                       placeholder="Deixe em branco para gerar automaticamente"
+                                                       id="codigo-input">
+                                                <div class="form-text">
+                                                    <i class="fas fa-lightbulb"></i>
+                                                    Formato: CP-00001 (gerado automaticamente se vazio)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Nome" class="form-label required">
+                                                    <i class="fas fa-tag"></i>
+                                                    Nome do Produto
+                                                </label>
+                                                <input asp-for="Nome" class="form-control"
+                                                       required
+                                                       placeholder="Digite o nome completo do produto"
+                                                       maxlength="200"
+                                                       id="nome-input">
+                                                <div class="char-counter" id="nome-counter">0/200</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Classificação -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-tags"></i>
+                                        Classificação
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Categoria" class="form-label required">
+                                                    <i class="fas fa-folder"></i>
+                                                    Categoria
+                                                </label>
+                                                <select asp-for="Categoria" class="form-select" required>
+                                                    <option value="">Selecione uma categoria...</option>
+                                                    <option value="Consultoria">📊 Consultoria</option>
+                                                    <option value="Oficina">🛠️ Oficina</option>
+                                                    <option value="Curso">🎓 Curso</option>
+                                                    <option value="Palestra">🎤 Palestra</option>
+                                                    <option value="Capacitação">💼 Capacitação</option>
+                                                    <option value="Mentoria">🌟 Mentoria</option>
+                                                    <option value="Workshop">🔧 Workshop</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Modalidade" class="form-label required">
+                                                    <i class="fas fa-laptop-house"></i>
+                                                    Modalidade
+                                                </label>
+                                                <select asp-for="Modalidade" class="form-select" required>
+                                                    <option value="">Selecione a modalidade...</option>
+                                                    <option value="Presencial">🏢 Presencial</option>
+                                                    <option value="Remoto">💻 Remoto</option>
+                                                    <option value="Ambos">🔄 Ambos</option>
+                                                    <option value="Híbrido">🌐 Híbrido</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Detalhes Técnicos -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-cogs"></i>
+                                        Detalhes Técnicos
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="CargaHoraria" class="form-label required">
+                                                    <i class="fas fa-clock"></i>
+                                                    Carga Horária
+                                                </label>
+                                                <input asp-for="CargaHoraria" class="form-control"
+                                                       required
+                                                       placeholder="Ex: 40 horas, 8h, 2 dias">
+                                                <div class="form-text">
+                                                    Formato livre: horas, dias, semanas
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="UF" class="form-label required">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    UF
+                                                </label>
+                                                <input asp-for="UF" class="form-control"
+                                                       required
+                                                       maxlength="2"
+                                                       placeholder="Ex: RR"
+                                                       style="text-transform: uppercase;">
+                                                <div class="form-text">
+                                                    Unidade Federativa (2 letras)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Descrições -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-align-left"></i>
+                                        Descrições
+                                    </h4>
+                                    <div class="mb-3">
+                                        <label asp-for="DescricaoResumida" class="form-label required">
+                                            <i class="fas fa-file-alt"></i>
+                                            Descrição Resumida
+                                        </label>
+                                        <textarea asp-for="DescricaoResumida" class="form-control"
+                                                  rows="2"
+                                                  required
+                                                  placeholder="Breve descrição para cards e listas..."
+                                                  maxlength="500"
+                                                  id="desc-resumida"></textarea>
+                                        <div class="char-counter" id="desc-resumida-counter">0/500</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="DescricaoCompleta" class="form-label required">
+                                            <i class="fas fa-file-medical-alt"></i>
+                                            Descrição Completa
+                                        </label>
+                                        <textarea asp-for="DescricaoCompleta" class="form-control"
+                                                  rows="4"
+                                                  required
+                                                  placeholder="Descrição detalhada do produto, objetivos, benefícios..."
+                                                  maxlength="2000"
+                                                  id="desc-completa"></textarea>
+                                        <div class="char-counter" id="desc-completa-counter">0/2000</div>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Segmentação -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-bullseye"></i>
+                                        Segmentação
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Instrumento" class="form-label">
+                                                    <i class="fas fa-toolbox"></i>
+                                                    Instrumento
+                                                </label>
+                                                <input asp-for="Instrumento" class="form-control"
+                                                       value="Cesta de Roraima"
+                                                       placeholder="Instrumento de apoio">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Macrossegmento" class="form-label">
+                                                    <i class="fas fa-chart-pie"></i>
+                                                    Macrossegmento
+                                                </label>
+                                                <input asp-for="Macrossegmento" class="form-control"
+                                                       placeholder="Segmento de atuação">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Comercial -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        Informações Comerciais
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Preco" class="form-label required">
+                                                    <i class="fas fa-money-bill-wave"></i>
+                                                    Preço (R$)
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-success text-white">R$</span>
+                                                    <input asp-for="Preco" type="number"
+                                                           step="0.01"
+                                                           class="form-control"
+                                                           required
+                                                           min="0"
+                                                           placeholder="0,00">
+                                                </div>
+                                                <div class="form-text">
+                                                    Valor em reais (use ponto para decimais)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Situacao" class="form-label required">
+                                                    <i class="fas fa-power-off"></i>
+                                                    Situação
+                                                </label>
+                                                <select asp-for="Situacao" class="form-select" required>
+                                                    <option value="Ativo">🟢 Ativo</option>
+                                                    <option value="Inativo">🔴 Inativo</option>
+                                                    <option value="Pausado">🟡 Pausado</option>
+                                                    <option value="Em Desenvolvimento">🟠 Em Desenvolvimento</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Configurações Adicionais -->
+                                <div class="form-section animate-stagger">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-sliders-h"></i>
+                                        Configurações Adicionais
+                                    </h4>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="RelevanteDossie" class="form-check-input" type="checkbox" role="switch">
+                                            <label asp-for="RelevanteDossie" class="form-check-label fw-semibold">
+                                                <i class="fas fa-star me-1"></i>
+                                                Produto relevante para dossiê da Cesta de Roraima
+                                            </label>
+                                        </div>
+                                        <div class="form-text">
+                                            Produtos marcados aparecerão como destaque no portfólio
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-hashtag"></i>
+                                            Tags (separadas por vírgula)
+                                        </label>
+                                        <input name="TagsInput" class="form-control"
+                                               placeholder="Ex: consultoria, gestão, certificação, presencial, remoto">
+                                        <div class="form-text">
+                                            Adicione tags para facilitar a busca e filtragem
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Preview Rápido -->
+                                <div class="preview-card" id="preview-card">
+                                    <h6 class="text-success mb-3">
+                                        <i class="fas fa-eye me-2"></i>Preview do Produto
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Nome:</strong> <span id="preview-nome">-</span><br>
+                                            <strong>Categoria:</strong> <span id="preview-categoria">-</span><br>
+                                            <strong>Modalidade:</strong> <span id="preview-modalidade">-</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Preço:</strong> <span id="preview-preco">-</span><br>
+                                            <strong>Situação:</strong> <span id="preview-situacao">-</span><br>
+                                            <strong>Carga Horária:</strong> <span id="preview-carga">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ações -->
+                                <div class="d-flex gap-3 mt-4 animate-fade-in">
+                                    <button type="submit" class="btn btn-success portfolio-btn flex-fill">
+                                        <i class="fas fa-save me-2"></i>
+                                        Salvar Produto
+                                    </button>
+                                    <a href="@Url.Action("AdminDashboard")" class="btn btn-outline-secondary portfolio-btn">
+                                        <i class="fas fa-times me-2"></i>
+                                        Cancelar
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contadores de caracteres
+            setupCharCounter('nome-input', 'nome-counter', 200);
+            setupCharCounter('desc-resumida', 'desc-resumida-counter', 500);
+            setupCharCounter('desc-completa', 'desc-completa-counter', 2000);
+
+            // Preview em tempo real
+            setupPreview();
+
+            // Validação de UF (apenas letras, maiúsculas)
+            document.getElementById('UF').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+            });
+
+            // Gerar código automático se vazio
+            document.getElementById('codigo-input').addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    const timestamp = new Date().getTime().toString().slice(-5);
+                    this.value = `CP-${timestamp}`;
+                }
+            });
+
+            // Validação do formulário
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = this.querySelectorAll('[required]');
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    showNotification('Preencha todos os campos obrigatórios!', 'danger');
+                }
+            });
+        });
+
+        function setupCharCounter(inputId, counterId, maxLength) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+
+            input.addEventListener('input', function() {
+                const length = this.value.length;
+                counter.textContent = `${length}/${maxLength}`;
+
+                counter.className = 'char-counter';
+                if (length > maxLength * 0.8) {
+                    counter.classList.add('warning');
+                }
+                if (length > maxLength) {
+                    counter.classList.add('danger');
+                }
+            });
+
+            // Inicializar contador
+            counter.textContent = `${input.value.length}/${maxLength}`;
+        }
+
+        function setupPreview() {
+            const previewFields = [
+                'nome-input', 'Categoria', 'Modalidade', 'Preco', 'Situacao', 'CargaHoraria'
+            ];
+
+            previewFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', updatePreview);
+                    field.addEventListener('change', updatePreview);
+                }
+            });
+
+            function updatePreview() {
+                const previewCard = document.getElementById('preview-card');
+                const hasData = document.getElementById('nome-input').value.trim() !== '';
+
+                if (hasData) {
+                    previewCard.classList.add('show');
+
+                    // Atualizar valores do preview
+                    document.getElementById('preview-nome').textContent =
+                        document.getElementById('nome-input').value || '-';
+                    document.getElementById('preview-categoria').textContent =
+                        document.getElementById('Categoria').value || '-';
+                    document.getElementById('preview-modalidade').textContent =
+                        document.getElementById('Modalidade').value || '-';
+                    document.getElementById('preview-preco').textContent =
+                        document.getElementById('Preco').value ?
+                        `R$ ${parseFloat(document.getElementById('Preco').value).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-';
+                    document.getElementById('preview-situacao').textContent =
+                        document.getElementById('Situacao').value || '-';
+                    document.getElementById('preview-carga').textContent =
+                        document.getElementById('CargaHoraria').value || '-';
+                } else {
+                    previewCard.classList.remove('show');
+                }
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Criar toast dinâmico
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            // Remover após esconder
+            toast.addEventListener('hidden.bs.toast', () => {
+                toastContainer.remove();
+            });
+        }
+
+        // Auto-focus no primeiro campo
+        setTimeout(() => {
+            document.getElementById('nome-input').focus();
+        }, 500);
+    </script>
+</body>
+</html>

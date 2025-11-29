@@ -1,0 +1,1552 @@
+﻿@model ApplicationSebrae.Models.PortfolioViewModel
+@{
+    ViewData["Title"] = "Portfólio de Soluções SEBRAE RR";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS para consistência */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #003d7a 0%, #0056a3 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --hover-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        /* Hero Section */
+        .portfolio-hero {
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+            padding: 4rem 0;
+            color: white;
+            text-align: center;
+        }
+
+            .portfolio-hero::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.1"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>') no-repeat center center;
+                background-size: cover;
+            }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cesta-badge {
+            display: inline-block;
+            background: var(--success-gradient);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-top: 1rem;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        /* Navbar Admin Button */
+        .admin-nav-btn {
+            background: var(--warning-gradient);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .admin-nav-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(250, 112, 154, 0.4);
+                color: white;
+            }
+
+        /* Cards Principais */
+        .stats-card {
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stats-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .stats-card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: var(--hover-shadow);
+                background: white;
+            }
+
+        .filters-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+            .filters-card:hover {
+                box-shadow: var(--hover-shadow);
+            }
+
+        .product-card {
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .product-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .product-card:hover {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: var(--hover-shadow);
+                background: white;
+            }
+
+            .product-card.new-solution::after {
+                content: "⭐ NOVA SOLUÇÃO";
+                position: absolute;
+                top: 15px;
+                right: -35px;
+                background: var(--warning-gradient);
+                color: white;
+                padding: 0.4rem 3rem;
+                font-size: 0.75rem;
+                font-weight: 700;
+                transform: rotate(45deg);
+                box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+                z-index: 10;
+            }
+
+        /* Botões */
+        .portfolio-btn {
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .portfolio-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .portfolio-btn:hover::before {
+                left: 100%;
+            }
+
+            .portfolio-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            box-shadow: 0 8px 25px rgba(0, 61, 122, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Elementos Específicos */
+        .product-code {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 61, 122, 0.3);
+        }
+
+        .meta-tag {
+            background: rgba(0, 61, 122, 0.1);
+            color: #003d7a;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 61, 122, 0.2);
+        }
+
+            .meta-tag.modalidade-presencial {
+                background: rgba(40, 167, 69, 0.1);
+                color: #28a745;
+                border-color: rgba(40, 167, 69, 0.2);
+            }
+
+            .meta-tag.modalidade-remoto {
+                background: rgba(255, 193, 7, 0.1);
+                color: #ffc107;
+                border-color: rgba(255, 193, 7, 0.2);
+            }
+
+            .meta-tag.modalidade-ambos {
+                background: rgba(111, 66, 193, 0.1);
+                color: #6f42c1;
+                border-color: rgba(111, 66, 193, 0.2);
+            }
+
+        .dossier-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .dossier-checkbox:hover {
+                background: rgba(40, 167, 69, 0.15);
+                transform: translateY(-2px);
+            }
+
+            .dossier-checkbox input {
+                width: 20px;
+                height: 20px;
+                accent-color: #28a745;
+            }
+
+        /* Novos Estilos para Funcionalidades */
+        .favorite-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+            .favorite-btn:hover {
+                background: white;
+                transform: scale(1.1);
+            }
+
+            .favorite-btn.active {
+                background: #ff6b6b;
+                color: white;
+            }
+
+        .compare-checkbox {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 20px;
+            height: 20px;
+            z-index: 5;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-views {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .price-tag {
+            background: var(--success-gradient);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-tag {
+            display: inline-block;
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+        }
+
+            .filter-tag:hover, .filter-tag.active {
+                background: var(--primary-gradient);
+                color: white;
+                border-color: #003d7a;
+            }
+
+        .tags-filter {
+            margin-bottom: 1rem;
+        }
+
+        .star {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #e4e5e9;
+            transition: color 0.2s;
+        }
+
+            .star:hover,
+            .star.active {
+                color: #ffc107;
+            }
+
+        /* Animações */
+        .animate-pop {
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.5s both;
+        }
+
+        .animate-stagger > * {
+            opacity: 0;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+            .animate-stagger > *:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .animate-stagger > *:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .animate-stagger > *:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .animate-stagger > *:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .animate-stagger > *:nth-child(5) {
+                animation-delay: 0.5s;
+            }
+
+            .animate-stagger > *:nth-child(6) {
+                animation-delay: 0.6s;
+            }
+
+        @@keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #003d7a;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003d7a;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal */
+        .modal-content {
+            border: none;
+            border-radius: 25px;
+            box-shadow: var(--hover-shadow);
+        }
+
+        .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 25px 25px 0 0;
+            border: none;
+        }
+
+        /* Comparação */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .comparison-table th, .comparison-table td {
+                padding: 0.75rem;
+                text-align: left;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .comparison-table th {
+                background: #f8f9fa;
+                font-weight: 600;
+            }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .portfolio-hero {
+                padding: 3rem 0;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dossier-checkbox {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .admin-nav-btn {
+                padding: 0.4rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolio-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .admin-nav-btn {
+                margin-top: 0.5rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
+                    🎯 Missão SEBRAE
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
+                                🏠 Início
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-semibold" asp-controller="Portfolio" asp-action="Index">
+                                📚 Portfólio de Soluções
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Tutorial" asp-action="Index">
+                                <i class="fas fa-book me-1"></i>Tutorial
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- Botão Admin Adicionado -->
+                    <div class="navbar-nav">
+                        <a href="@Url.Action("AdminLogin", "Portfolio")" class="admin-nav-btn">
+                            <i class="fas fa-shield-alt"></i>
+                            Área Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid px-0">
+        <main role="main">
+            <!-- Hero Section -->
+            <section class="portfolio-hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <h1 class="hero-title display-3 fw-bold mb-3 animate-pop">
+                            📚 Portfólio de Soluções
+                        </h1>
+                        <p class="hero-subtitle lead fs-4 mb-4 animate-fade-in">
+                            Conheça todas as @Model.TotalProducts soluções disponíveis para fortalecer seu negócio
+                        </p>
+                        <div class="cesta-badge animate-slide-up">
+                            🎯 Cesta de Roraima - @Model.NewSolutions Soluções Específicas
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conteúdo Principal -->
+            <section class="py-5">
+                <div class="container">
+                    <!-- Estatísticas -->
+                    <div class="stats-grid mb-5 animate-stagger">
+                        <div class="stats-card p-4">
+                            <div class="stat-number display-4 fw-bold text-primary mb-2">@Model.TotalProducts</div>
+                            <div class="stat-label text-muted">Total de Produtos</div>
+                        </div>
+                        <div class="stats-card p-4">
+                            <div class="stat-number display-4 fw-bold text-success mb-2">@Model.DossierProducts</div>
+                            <div class="stat-label text-muted">Produtos dos Dossiês</div>
+                        </div>
+                        <div class="stats-card p-4">
+                            <div class="stat-number display-4 fw-bold text-info mb-2" id="consultoria-count">0</div>
+                            <div class="stat-label text-muted">Consultorias</div>
+                        </div>
+                        <div class="stats-card p-4">
+                            <div class="stat-number display-4 fw-bold text-warning mb-2" id="oficina-count">0</div>
+                            <div class="stat-label text-muted">Oficinas</div>
+                        </div>
+                        <div class="stats-card p-4">
+                            <div class="stat-number display-4 fw-bold text-danger mb-2" id="presencial-count">0</div>
+                            <div class="stat-label text-muted">Presenciais</div>
+                        </div>
+                        <div class="stats-card p-4">
+                            <div class="stat-number display-4 fw-bold text-purple mb-2">@Model.NewSolutions</div>
+                            <div class="stat-label text-muted">Novas Soluções</div>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Ações -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-primary fw-bold">📊 Explorar Soluções</h3>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="showFavorites()">
+                                <i class="fas fa-heart me-1"></i> Favoritos
+                                <span class="badge bg-primary ms-1" id="favorites-count">0</span>
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="showComparison()">
+                                <i class="fas fa-balance-scale me-1"></i> Comparar
+                                <span class="badge bg-success ms-1" id="compare-count">0</span>
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="showPopular()">
+                                <i class="fas fa-chart-line me-1"></i> Populares
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros Avançados -->
+                    <div class="filters-card p-4 mb-5 animate-slide-up">
+                        <h3 class="text-primary mb-4 fw-bold">
+                            <i class="fas fa-filter me-2"></i>
+                            Filtros de Busca
+                        </h3>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark">🔍 Buscar produtos:</label>
+                                <input type="text" id="search" class="form-control form-control-lg" placeholder="Digite o nome ou código...">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-dark">📂 Categoria:</label>
+                                <select id="category" class="form-select form-select-lg">
+                                    <option value="">Todas</option>
+                                    <option value="Consultoria">Consultoria</option>
+                                    <option value="Oficina">Oficina</option>
+                                    <option value="Palestra">Palestra</option>
+                                    <option value="Curso">Curso</option>
+                                    <option value="Capacitação">Capacitação</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-dark">💻 Modalidade:</label>
+                                <select id="modality" class="form-select form-select-lg">
+                                    <option value="">Todas</option>
+                                    <option value="Presencial">Presencial</option>
+                                    <option value="Remoto">Remoto</option>
+                                    <option value="Ambos">Ambos</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Filtro por Tags -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">🏷️ Tags:</label>
+                            <div class="tags-filter" id="tags-filter">
+                                <span class="filter-tag" data-tag="iniciante">Para Iniciantes</span>
+                                <span class="filter-tag" data-tag="avancado">Avançado</span>
+                                <span class="filter-tag" data-tag="certificacao">Com Certificação</span>
+                                <span class="filter-tag" data-tag="mentoria">Com Mentoria</span>
+                                <span class="filter-tag" data-tag="pratico">Prático</span>
+                                <span class="filter-tag" data-tag="teorico">Teórico</span>
+                                <span class="filter-tag" data-tag="intensivo">Intensivo</span>
+                            </div>
+                        </div>
+
+                        <!-- Filtro por Preço -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">💰 Faixa de Preço:</label>
+                            <div class="tags-filter" id="price-filter">
+                                <span class="filter-tag" data-price="0-0">Grátis</span>
+                                <span class="filter-tag" data-price="1-500">Até R$ 500</span>
+                                <span class="filter-tag" data-price="500-1000">R$ 500 - R$ 1.000</span>
+                                <span class="filter-tag" data-price="1000-999999">Acima de R$ 1.000</span>
+                            </div>
+                        </div>
+
+                        <!-- Filtro por Duração -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">⏱️ Duração:</label>
+                            <div class="tags-filter" id="duration-filter">
+                                <span class="filter-tag" data-duration="0-4">Curta (até 4h)</span>
+                                <span class="filter-tag" data-duration="4-16">Média (4h - 16h)</span>
+                                <span class="filter-tag" data-duration="16-999">Longa (acima de 16h)</span>
+                            </div>
+                        </div>
+
+                        <div class="dossier-checkbox">
+                            <input type="checkbox" id="dossier-filter" class="form-check-input">
+                            <label for="dossier-filter" class="fw-semibold text-success fs-5">
+                                ⭐ Mostrar apenas produtos da Cesta de Roraima
+                            </label>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button class="btn btn-primary btn-lg me-3 portfolio-btn px-5 py-3" onclick="applyFilters()">
+                                <i class="fas fa-search me-2"></i>
+                                Aplicar Filtros
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg me-3 portfolio-btn px-5 py-3" onclick="clearFilters()">
+                                <i class="fas fa-broom me-2"></i>
+                                Limpar
+                            </button>
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary btn-lg portfolio-btn px-5 py-3">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Voltar ao Jogo
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Produtos -->
+                    <div id="products-container">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p class="fs-5">Carregando produtos da Cesta de Roraima...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modal-title">Detalhes do Produto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Código:</strong>
+                                    <span id="modal-code" class="badge bg-primary fs-6"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Categoria:</strong>
+                                    <span id="modal-category" class="badge bg-info text-dark"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Modalidade:</strong>
+                                    <span id="modal-modality" class="badge bg-warning text-dark"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Carga Horária:</strong>
+                                    <span id="modal-duration" class="fw-semibold"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">UF:</strong>
+                                    <span id="modal-uf" class="fw-semibold"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Situação:</strong>
+                                    <span id="modal-status" class="badge bg-success"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Preço:</strong>
+                                    <span id="modal-price" class="price-tag"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Avaliação:</strong>
+                                    <span id="modal-rating" class="rating-stars"></span>
+                                    <small id="modal-rating-count" class="text-muted"></small>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info border-0 rounded-3">
+                                <h6 class="fw-bold text-dark mb-3">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    Descrição Completa
+                                </h6>
+                                <p id="modal-description" class="mb-0 text-dark"></p>
+                            </div>
+
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Instrumento:</strong>
+                                    <span id="modal-instrument" class="fw-semibold"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-primary">Macrossegmento:</strong>
+                                    <span id="modal-segment" class="fw-semibold"></span>
+                                </div>
+                            </div>
+
+                            <!-- Avaliações -->
+                            <div class="mt-4" id="reviews-section">
+                                <h6 class="fw-bold text-primary mb-3">
+                                    <i class="fas fa-star me-2"></i>
+                                    Avaliações
+                                </h6>
+                                <div id="reviews-list"></div>
+
+                                <!-- Formulário de Avaliação -->
+                                <div class="mt-4">
+                                    <h6 class="fw-bold text-primary mb-3">Deixe sua avaliação</h6>
+                                    <form id="review-form">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nome:</label>
+                                            <input type="text" class="form-control" id="review-name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Avaliação (1-5):</label>
+                                            <div class="rating-input">
+                                                <span class="star" data-rating="1">★</span>
+                                                <span class="star" data-rating="2">★</span>
+                                                <span class="star" data-rating="3">★</span>
+                                                <span class="star" data-rating="4">★</span>
+                                                <span class="star" data-rating="5">★</span>
+                                            </div>
+                                            <input type="hidden" id="review-rating" value="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Comentário:</label>
+                                            <textarea class="form-control" id="review-comment" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Enviar Avaliação</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Produtos Similares -->
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">🔄 Produtos Similares</h6>
+                                </div>
+                                <div class="card-body" id="similar-products">
+                                    <div class="text-center text-muted">
+                                        <small>Carregando produtos similares...</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estatísticas -->
+                            <div class="card mt-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">📊 Estatísticas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Visualizações:</span>
+                                        <strong id="modal-views">0</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>No mercado desde:</span>
+                                        <strong>2024</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Comparação -->
+    <div class="modal fade" id="comparisonModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">🔍 Comparação de Produtos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="comparison-content">
+                        <p class="text-center text-muted">Selecione 2 a 3 produtos para comparar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast para notificações -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">Portfólio SEBRAE</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        // Sistema de Estado
+        let allProducts = [];
+        let filteredProducts = [];
+        let favorites = JSON.parse(localStorage.getItem('portfolioFavorites')) || [];
+        let compareList = JSON.parse(localStorage.getItem('portfolioCompare')) || [];
+        let viewHistory = JSON.parse(localStorage.getItem('portfolioHistory')) || [];
+        const newSolutionsCodes = ['CP-13330', 'CP-11972', 'CP-04490', 'CP-05795', 'CP-19608', 'CP-12861', 'CP-13923', 'CP-02552'];
+
+        // Filtros ativos
+        let activeFilters = {
+            search: '',
+            category: '',
+            modality: '',
+            tags: [],
+            priceRange: null,
+            durationRange: null,
+            dossierOnly: false
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            loadStatistics();
+            updateUIState();
+
+            // Event listeners
+            document.getElementById('search').addEventListener('input', debounce(applyFilters, 300));
+            document.getElementById('category').addEventListener('change', applyFilters);
+            document.getElementById('modality').addEventListener('change', applyFilters);
+            document.getElementById('dossier-filter').addEventListener('change', applyFilters);
+
+            // Event listeners para filtros de tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    applyFilters();
+                });
+            });
+
+            // Event listeners para estrelas de rating
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    setRating(rating);
+                });
+            });
+
+            // Formulário de avaliação
+            document.getElementById('review-form').addEventListener('submit', submitReview);
+        });
+
+        // 🚀 SISTEMA DE FAVORITOS
+        function toggleFavorite(productCode, event) {
+            if (event) event.stopPropagation();
+
+            const index = favorites.indexOf(productCode);
+
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(productCode);
+            }
+
+            localStorage.setItem('portfolioFavorites', JSON.stringify(favorites));
+            updateUIState();
+
+            showNotification(
+                index > -1 ? 'Removido dos favoritos' : 'Adicionado aos favoritos',
+                'success'
+            );
+        }
+
+        // 🔍 SISTEMA DE COMPARAÇÃO
+        function toggleCompare(productCode, event) {
+            if (event) event.stopPropagation();
+
+            const index = compareList.indexOf(productCode);
+
+            if (index > -1) {
+                compareList.splice(index, 1);
+            } else {
+                if (compareList.length >= 3) {
+                    showNotification('Máximo de 3 produtos para comparação', 'warning');
+                    return;
+                }
+                compareList.push(productCode);
+            }
+
+            localStorage.setItem('portfolioCompare', JSON.stringify(compareList));
+            updateUIState();
+        }
+
+        function showComparison() {
+            if (compareList.length < 2) {
+                showNotification('Selecione pelo menos 2 produtos para comparar', 'warning');
+                return;
+            }
+
+            const comparisonContent = document.getElementById('comparison-content');
+            const productsToCompare = allProducts.filter(p => compareList.includes(p.codigo));
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                ${productsToCompare.map(p => `<th>${p.nome}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Código</strong></td>
+                                ${productsToCompare.map(p => `<td>${p.codigo}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td><strong>Categoria</strong></td>
+                                ${productsToCompare.map(p => `<td>${p.categoria}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td><strong>Modalidade</strong></td>
+                                ${productsToCompare.map(p => `<td>${p.modalidade}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td><strong>Carga Horária</strong></td>
+                                ${productsToCompare.map(p => `<td>${p.cargaHoraria}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td><strong>Preço</strong></td>
+                                ${productsToCompare.map(p => `<td>R$ ${p.preco?.toLocaleString('pt-BR') || '0'}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td><strong>Avaliação</strong></td>
+                                ${productsToCompare.map(p => `<td>${renderStars(p.rating || 0)} (${p.totalAvaliacoes || 0})</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td><strong>Visualizações</strong></td>
+                                ${productsToCompare.map(p => `<td>${p.visualizacoes || 0}</td>`).join('')}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-danger btn-sm" onclick="clearComparison()">
+                        <i class="fas fa-trash me-1"></i> Limpar Comparação
+                    </button>
+                </div>
+            `;
+
+            comparisonContent.innerHTML = html;
+            const modal = new bootstrap.Modal(document.getElementById('comparisonModal'));
+            modal.show();
+        }
+
+        function clearComparison() {
+            compareList = [];
+            localStorage.setItem('portfolioCompare', JSON.stringify(compareList));
+            updateUIState();
+            bootstrap.Modal.getInstance(document.getElementById('comparisonModal')).hide();
+            showNotification('Comparação limpa', 'success');
+        }
+
+        // 📊 HISTÓRICO DE VISUALIZAÇÕES
+        function addToHistory(product) {
+            const existingIndex = viewHistory.findIndex(p => p.codigo === product.codigo);
+
+            if (existingIndex > -1) {
+                viewHistory.splice(existingIndex, 1);
+            }
+
+            viewHistory.unshift(product);
+            viewHistory = viewHistory.slice(0, 10); // Manter apenas últimos 10
+            localStorage.setItem('portfolioHistory', JSON.stringify(viewHistory));
+        }
+
+        // ⭐ SISTEMA DE AVALIAÇÕES
+        function setRating(rating) {
+            document.getElementById('review-rating').value = rating;
+            document.querySelectorAll('.star').forEach((star, index) => {
+                if (index < rating) {
+                    star.style.color = '#ffc107';
+                } else {
+                    star.style.color = '#e4e5e9';
+                }
+            });
+        }
+
+        async function submitReview(event) {
+            event.preventDefault();
+
+            const productCode = document.getElementById('modal-code').textContent;
+            const name = document.getElementById('review-name').value;
+            const rating = parseInt(document.getElementById('review-rating').value);
+            const comment = document.getElementById('review-comment').value;
+
+            if (rating === 0) {
+                showNotification('Selecione uma avaliação', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Portfolio/AddReview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productCode: productCode,
+                        userName: name,
+                        rating: rating,
+                        comment: comment
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Avaliação enviada com sucesso!', 'success');
+                    document.getElementById('review-form').reset();
+                    setRating(0);
+                    // Recarregar reviews
+                    loadProductReviews(productCode);
+                } else {
+                    showNotification('Erro ao enviar avaliação', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao enviar avaliação:', error);
+                showNotification('Erro ao enviar avaliação', 'danger');
+            }
+        }
+
+        async function loadProductReviews(productCode) {
+            try {
+                const response = await fetch(`/Portfolio/GetProductDetails?code=${productCode}`);
+                const data = await response.json();
+
+                if (data.success && data.reviews) {
+                    renderReviews(data.reviews);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar reviews:', error);
+            }
+        }
+
+        function renderReviews(reviews) {
+            const reviewsList = document.getElementById('reviews-list');
+
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<p class="text-muted">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>';
+                return;
+            }
+
+            const html = reviews.map(review => `
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <strong>${review.userName}</strong>
+                        <small class="text-muted">${new Date(review.createdAt).toLocaleDateString('pt-BR')}</small>
+                    </div>
+                    <div class="rating-stars mb-2">
+                        ${renderStars(review.rating)}
+                    </div>
+                    <p class="mb-0">${review.comment}</p>
+                </div>
+            `).join('');
+
+            reviewsList.innerHTML = html;
+        }
+
+        // 📈 SISTEMA DE RECOMENDAÇÕES
+        async function loadSimilarProducts(productCode) {
+            try {
+                const response = await fetch(`/Portfolio/GetSimilarProducts?code=${productCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderSimilarProducts(data.products);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar produtos similares:', error);
+            }
+        }
+
+        function renderSimilarProducts(products) {
+            const container = document.getElementById('similar-products');
+
+            if (products.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum produto similar encontrado</p>';
+                return;
+            }
+
+            const html = products.map(product => `
+                <div class="border-bottom pb-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong class="d-block">${product.nome}</strong>
+                            <small class="text-muted">${product.codigo}</small>
+                        </div>
+                        <span class="badge bg-primary">R$ ${product.preco?.toLocaleString('pt-BR') || '0'}</span>
+                    </div>
+                    <div class="rating-stars small mt-1">
+                        ${renderStars(product.rating || 0)}
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        // 🏆 PRODUTOS POPULARES
+        async function showPopular() {
+            try {
+                const response = await fetch('/Portfolio/GetPopularProducts');
+                const data = await response.json();
+
+                if (data.success) {
+                    filteredProducts = data.products;
+                    renderProducts();
+                    showNotification('Mostrando produtos mais populares', 'info');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar produtos populares:', error);
+            }
+        }
+
+        function showFavorites() {
+            if (favorites.length === 0) {
+                showNotification('Nenhum produto favoritado', 'info');
+                return;
+            }
+
+            filteredProducts = allProducts.filter(p => favorites.includes(p.codigo));
+            renderProducts();
+            showNotification('Mostrando favoritos', 'success');
+        }
+
+        // 🎯 FUNÇÕES AUXILIARES
+        function renderStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            let stars = '';
+
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += '★';
+                } else if (hasHalfStar && i === fullStars + 1) {
+                    stars += '½';
+                } else {
+                    stars += '☆';
+                }
+            }
+
+            return stars;
+        }
+
+        function updateUIState() {
+            document.getElementById('favorites-count').textContent = favorites.length;
+            document.getElementById('compare-count').textContent = compareList.length;
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notification-toast');
+            const toastBody = document.getElementById('toast-message');
+            const toastHeader = toast.querySelector('.toast-header');
+
+            toastHeader.className = `toast-header bg-${type} text-white`;
+            toastBody.textContent = message;
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/Portfolio/GetProducts');
+                const data = await response.json();
+
+                if (data.success) {
+                    allProducts = data.products;
+                    filteredProducts = [...allProducts];
+                    renderProducts();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                document.getElementById('products-container').innerHTML =
+                    '<div class="alert alert-danger text-center p-4">❌ Erro ao carregar produtos. Tente novamente.</div>';
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/Portfolio/GetStatistics');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('consultoria-count').textContent = data.stats.consultorias;
+                    document.getElementById('oficina-count').textContent = data.stats.oficinas;
+                    document.getElementById('presencial-count').textContent = data.stats.presenciais;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const category = document.getElementById('category').value;
+            const modality = document.getElementById('modality').value;
+            const dossierOnly = document.getElementById('dossier-filter').checked;
+
+            // Obter tags ativas
+            const activeTags = Array.from(document.querySelectorAll('#tags-filter .filter-tag.active'))
+                .map(tag => tag.dataset.tag);
+
+            // Obter faixa de preço ativa
+            const priceRange = document.querySelector('#price-filter .filter-tag.active')?.dataset.price;
+
+            // Obter faixa de duração ativa
+            const durationRange = document.querySelector('#duration-filter .filter-tag.active')?.dataset.duration;
+
+            // Track busca (simplificado)
+            if (search) {
+                fetch('/Portfolio/TrackSearch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ term: search })
+                });
+            }
+
+            filteredProducts = allProducts.filter(product => {
+                const matchesSearch = !search ||
+                    product.nome.toLowerCase().includes(search) ||
+                    product.codigo.toLowerCase().includes(search);
+
+                const matchesCategory = !category || product.categoria === category;
+                const matchesModality = !modality || product.modalidade === modality;
+                const matchesDossier = !dossierOnly || newSolutionsCodes.includes(product.codigo);
+
+                // Novos filtros
+                const matchesTags = activeTags.length === 0 ||
+                    activeTags.some(tag => product.tags?.includes(tag));
+
+                const matchesPrice = !priceRange ||
+                    checkPriceRange(product.preco || 0, priceRange);
+
+                const matchesDuration = !durationRange ||
+                    checkDurationRange(product.cargaHoraria, durationRange);
+
+                return matchesSearch && matchesCategory && matchesModality &&
+                       matchesDossier && matchesTags && matchesPrice && matchesDuration;
+            });
+
+            renderProducts();
+        }
+
+        function checkPriceRange(price, range) {
+            const [min, max] = range.split('-').map(Number);
+            if (min === 0 && max === 0) return price === 0;
+            if (max === 999999) return price >= min;
+            return price >= min && price <= max;
+        }
+
+        function checkDurationRange(duration, range) {
+            const [min, max] = range.split('-').map(Number);
+            const hours = parseInt(duration) || 0;
+            if (max === 999) return hours >= min;
+            return hours >= min && hours <= max;
+        }
+
+        function clearFilters() {
+            document.getElementById('search').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('modality').value = '';
+            document.getElementById('dossier-filter').checked = false;
+
+            // Limpar tags ativas
+            document.querySelectorAll('.filter-tag.active').forEach(tag => {
+                tag.classList.remove('active');
+            });
+
+            filteredProducts = [...allProducts];
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="display-1 text-muted mb-3">🔍</div>
+                        <h3 class="text-muted mb-3">Nenhum produto encontrado</h3>
+                        <p class="text-muted">Tente ajustar os filtros de busca</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = filteredProducts.map(product => {
+                const isNew = newSolutionsCodes.includes(product.codigo);
+                const isFavorite = favorites.includes(product.codigo);
+                const inCompare = compareList.includes(product.codigo);
+                const modalityClass = `modalidade-${product.modalidade.toLowerCase().replace('/', '')}`;
+
+                return `
+                    <div class="product-card p-4 ${isNew ? 'new-solution' : ''}" onclick="showProductDetails('${product.codigo}')">
+                        <!-- Botão Favorito -->
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${product.codigo}', event)">
+                            <i class="fas fa-heart"></i>
+                        </button>
+
+                        <!-- Checkbox Comparação -->
+                        <input type="checkbox" class="compare-checkbox" ${inCompare ? 'checked' : ''}
+                               onclick="toggleCompare('${product.codigo}', event)">
+
+                        <span class="product-code">${product.codigo}</span>
+                        <h4 class="product-title text-primary fw-bold mb-3">${product.nome}</h4>
+
+                        <div class="product-meta mb-3">
+                            <span class="meta-tag">${product.categoria}</span>
+                            <span class="meta-tag ${modalityClass}">${product.modalidade}</span>
+                            <span class="meta-tag">⏱️ ${product.cargaHoraria}</span>
+                            <span class="price-tag">R$ ${(product.preco || 0).toLocaleString('pt-BR')}</span>
+                        </div>
+
+                        <!-- Rating e Visualizações -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="rating-stars">
+                                ${renderStars(product.rating || 0)}
+                                <small class="text-muted ms-1">(${product.totalAvaliacoes || 0})</small>
+                            </div>
+                            <div class="product-views">
+                                <i class="fas fa-eye me-1"></i>${product.visualizacoes || 0}
+                            </div>
+                        </div>
+
+                        <p class="product-description text-muted mb-3">${product.descricaoResumida}</p>
+
+                        <!-- Tags -->
+                        <div class="product-tags mb-3">
+                            ${(product.tags || []).map(tag => `<span class="badge bg-light text-dark me-1">${tag}</span>`).join('')}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center text-muted small">
+                            <span>📍 ${product.uf}</span>
+                            <span>📊 ${product.situacao}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2rem;">
+                    ${html}
+                </div>
+            `;
+        }
+
+        async function showProductDetails(code) {
+            try {
+                const response = await fetch(`/Portfolio/GetProductDetails?code=${code}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const product = data.product;
+
+                    // Track no histórico
+                    addToHistory(product);
+
+                    // Preencher modal
+                    document.getElementById('modal-title').textContent = product.nome;
+                    document.getElementById('modal-code').textContent = product.codigo;
+                    document.getElementById('modal-category').textContent = product.categoria;
+                    document.getElementById('modal-modality').textContent = product.modalidade;
+                    document.getElementById('modal-duration').textContent = product.cargaHoraria;
+                    document.getElementById('modal-uf').textContent = product.uf;
+                    document.getElementById('modal-status').textContent = product.situacao;
+                    document.getElementById('modal-price').textContent = `R$ ${(product.preco || 0).toLocaleString('pt-BR')}`;
+                    document.getElementById('modal-rating').innerHTML = `${renderStars(product.rating || 0)} ${(product.rating || 0).toFixed(1)}`;
+                    document.getElementById('modal-rating-count').textContent = `(${product.totalAvaliacoes || 0} avaliações)`;
+                    document.getElementById('modal-description').textContent = product.descricaoCompleta;
+                    document.getElementById('modal-instrument').textContent = product.instrumento;
+                    document.getElementById('modal-segment').textContent = product.macrossegmento;
+                    document.getElementById('modal-views').textContent = product.visualizacoes || 0;
+
+                    // Carregar reviews
+                    renderReviews(data.reviews || []);
+
+                    // Carregar produtos similares
+                    loadSimilarProducts(code);
+
+                    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                    modal.show();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar detalhes:', error);
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func(...args), wait);
+            };
+        }
+    </script>
+</body>
+</html>

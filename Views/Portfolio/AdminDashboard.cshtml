@@ -1,0 +1,755 @@
+﻿@model List<Product>
+@{
+    ViewData["Title"] = "Admin Dashboard - Portfólio";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS para consistência */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #003d7a 0%, #0056a3 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --hover-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        /* Header Admin */
+        .admin-header {
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+            padding: 2rem 0;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+            .admin-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.1"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>') no-repeat center center;
+                background-size: cover;
+            }
+
+        .admin-title {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Cards */
+        .admin-card {
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .admin-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .admin-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        .card-header-admin {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 20px 20px 0 0 !important;
+            border: none;
+            padding: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Botões */
+        .portfolio-btn {
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .portfolio-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .portfolio-btn:hover::before {
+                left: 100%;
+            }
+
+            .portfolio-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            box-shadow: 0 8px 25px rgba(0, 61, 122, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            background: transparent;
+        }
+
+            .btn-outline-danger:hover {
+                background: #dc3545;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            }
+
+        /* Tabela */
+        .admin-table {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+            .admin-table thead th {
+                background: var(--primary-gradient);
+                color: white;
+                border: none;
+                padding: 1.25rem 1rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-size: 0.85rem;
+            }
+
+            .admin-table tbody td {
+                padding: 1.25rem 1rem;
+                border-color: #f8f9fa;
+                vertical-align: middle;
+                transition: all 0.3s ease;
+            }
+
+            .admin-table tbody tr {
+                transition: all 0.3s ease;
+            }
+
+                .admin-table tbody tr:hover {
+                    background: rgba(0, 61, 122, 0.05);
+                    transform: translateX(5px);
+                }
+
+        /* Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        /* Botões de ação */
+        .action-btn {
+            border-radius: 15px;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.3s ease;
+            border: 2px solid;
+        }
+
+        .btn-edit {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: transparent;
+        }
+
+            .btn-edit:hover {
+                background: #0d6efd;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+            }
+
+        .btn-delete {
+            border-color: #dc3545;
+            color: #dc3545;
+            background: transparent;
+        }
+
+            .btn-delete:hover {
+                background: #dc3545;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            }
+
+        /* Alertas */
+        .alert {
+            border-radius: 15px;
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .alert-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .alert-danger {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        /* Estatísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 61, 122, 0.1);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+        .stat-primary {
+            color: #003d7a;
+        }
+
+        .stat-success {
+            color: #28a745;
+        }
+
+        .stat-warning {
+            color: #ffc107;
+        }
+
+        .stat-info {
+            color: #17a2b8;
+        }
+
+        /* Animações */
+        .animate-pop {
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.5s both;
+        }
+
+        .animate-stagger > * {
+            opacity: 0;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+            .animate-stagger > *:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .animate-stagger > *:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .animate-stagger > *:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .animate-stagger > *:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .animate-stagger > *:nth-child(5) {
+                animation-delay: 0.5s;
+            }
+
+            .animate-stagger > *:nth-child(6) {
+                animation-delay: 0.6s;
+            }
+
+        @@keyframes popIn {
+            0%
+
+        {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Loading e Estados */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #003d7a;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003d7a;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @@keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .admin-header {
+                padding: 1.5rem 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .admin-table {
+                font-size: 0.9rem;
+            }
+
+            .action-btn {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-table {
+                font-size: 0.8rem;
+            }
+
+            .portfolio-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Admin -->
+    <div class="admin-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="admin-title">
+                        <h1 class="display-5 fw-bold mb-2 animate-pop">
+                            <i class="fas fa-shield-alt me-3"></i>📊 Admin Dashboard
+                        </h1>
+                        <p class="lead mb-0 opacity-75 animate-fade-in">
+                            Gerenciamento do Portfólio de Soluções SEBRAE
+                        </p>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="admin-badge animate-slide-up">
+                        ⚡ Painel Administrativo
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <!-- Barra de Ações -->
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-slide-up">
+            <div>
+                <h3 class="text-primary fw-bold mb-0">
+                    <i class="fas fa-cogs me-2"></i>Gestão de Produtos
+                </h3>
+                <p class="text-muted mb-0">Gerencie todos os produtos do portfólio</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="@Url.Action("CreateProduct")" class="btn btn-success portfolio-btn px-4">
+                    <i class="fas fa-plus me-2"></i> Novo Produto
+                </a>
+                <a href="@Url.Action("Index")" class="btn btn-primary portfolio-btn px-4">
+                    <i class="fas fa-eye me-2"></i> Ver Portfólio
+                </a>
+                <a href="@Url.Action("Logout")" class="btn btn-outline-danger portfolio-btn px-4">
+                    <i class="fas fa-sign-out-alt me-2"></i> Sair
+                </a>
+            </div>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="stats-grid animate-stagger mb-4">
+            <div class="stat-card">
+                <div class="stat-number stat-primary">@Model.Count</div>
+                <div class="stat-label">Total de Produtos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-success">@Model.Count(p => p.Situacao == "Ativo")</div>
+                <div class="stat-label">Produtos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-warning">@Model.Count(p => p.Situacao != "Ativo")</div>
+                <div class="stat-label">Produtos Inativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-info">@Model.Count(p => p.Preco.HasValue && p.Preco > 0)</div>
+                <div class="stat-label">Produtos com Preço</div>
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success animate-fade-in">
+                <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger animate-fade-in">
+                <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]
+            </div>
+        }
+
+        <!-- Tabela de Produtos -->
+        <div class="admin-card animate-pop">
+            <div class="card-header-admin d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>📋 Produtos Cadastrados
+                </h5>
+                <span class="badge bg-light text-primary fs-6">@Model.Count itens</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover admin-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Modalidade</th>
+                                <th>Preço</th>
+                                <th>Situação</th>
+                                <th width="120">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in Model)
+                            {
+                                <tr class="animate-fade-in">
+                                    <td>
+                                        <strong class="text-primary">@product.Codigo</strong>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">@product.Nome</div>
+                                        <small class="text-muted">@product.Instrumento</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">@product.Categoria</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">@product.Modalidade</span>
+                                    </td>
+                                    <td>
+                                        @if (product.Preco.HasValue)
+                                        {
+                                            <span class="fw-bold text-success">R$ @product.Preco.Value.ToString("N2")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="status-badge badge-@(product.Situacao == "Ativo" ? "success" : "warning")">
+                                            @product.Situacao
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a href="@Url.Action("EditProduct", new { code = product.Codigo })"
+                                               class="btn btn-sm btn-edit action-btn"
+                                               title="Editar Produto">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button onclick="deleteProduct('@product.Codigo', '@product.Nome')"
+                                                    class="btn btn-sm btn-delete action-btn"
+                                                    title="Excluir Produto">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Admin -->
+        <div class="text-center mt-4 animate-fade-in">
+            <p class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Sistema Admin - Portfólio SEBRAE RR |
+                <span id="current-time"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir o produto <strong id="product-name"></strong>?</p>
+                    <p class="text-muted small">Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        // Atualizar horário atual
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent =
+                now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Sistema de exclusão com modal
+        let productToDelete = null;
+
+        function deleteProduct(code, name) {
+            productToDelete = code;
+            document.getElementById('product-name').textContent = name;
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirm-delete').addEventListener('click', function() {
+            if (!productToDelete) return;
+
+            fetch('@Url.Action("DeleteProduct")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: productToDelete })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                modal.hide();
+
+                if (data.success) {
+                    showNotification('Produto excluído com sucesso!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showNotification('Erro ao excluir produto: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showNotification('Erro ao excluir produto', 'danger');
+            });
+        });
+
+        // Sistema de notificações
+        function showNotification(message, type = 'info') {
+            // Criar toast dinâmico
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            // Remover após esconder
+            toast.addEventListener('hidden.bs.toast', () => {
+                toastContainer.remove();
+            });
+        }
+
+        // Efeitos de hover na tabela
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableRows = document.querySelectorAll('.admin-table tbody tr');
+
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Animar entrada das linhas
+            setTimeout(() => {
+                tableRows.forEach((row, index) => {
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+﻿@{
+    ViewData["Title"] = "Login do Facilitador";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --card-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            --hover-shadow: 0 35px 70px rgba(0,0,0,0.25);
+        }
+
+        /* Estilos Base */
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><circle cx="50" cy="50" r="2" fill="white"/></svg>') repeat;
+                animation: float 20s infinite linear;
+            }
+
+        /* Card Principal */
+        .login-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .login-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .login-card:hover {
+                transform: translateY(-10px);
+                box-shadow: var(--hover-shadow);
+            }
+
+        /* Header do Card */
+        .card-header-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        /* Formulário */
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+            .form-control:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+                background: white;
+                transform: translateY(-2px);
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        /* Botões */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn-primary::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .btn-primary:hover::before {
+                left: 100%;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            }
+
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: #6c757d;
+                border-color: #6c757d;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+            }
+
+        /* Alertas */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            border-left: 4px solid #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Animações */
+        @@keyframes float {
+            0%
+
+        {
+            background-position: 0 0;
+        }
+
+        100% {
+            background-position: 100px 100px;
+        }
+
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100%
+
+        {
+            transform: translateY(0);
+        }
+
+        40% {
+            transform: translateY(-10px);
+        }
+
+        60% {
+            transform: translateY(-5px);
+        }
+
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Elementos Decorativos */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: floatElement 15s infinite linear;
+        }
+
+            .floating-element:nth-child(1) {
+                width: 80px;
+                height: 80px;
+                top: 10%;
+                left: 10%;
+                animation-delay: 0s;
+            }
+
+            .floating-element:nth-child(2) {
+                width: 120px;
+                height: 120px;
+                top: 60%;
+                right: 10%;
+                animation-delay: -5s;
+            }
+
+            .floating-element:nth-child(3) {
+                width: 60px;
+                height: 60px;
+                bottom: 20%;
+                left: 20%;
+                animation-delay: -10s;
+            }
+
+        @@keyframes floatElement {
+            0%, 100%
+
+        {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        33% {
+            transform: translateY(-30px) rotate(120deg);
+        }
+
+        66% {
+            transform: translateY(15px) rotate(240deg);
+        }
+
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+
+            .login-card {
+                margin: 1rem;
+            }
+
+            .card-body {
+                padding: 2rem !important;
+            }
+
+            .card-header-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .btn-primary, .btn-outline-secondary {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Elementos Decorativos Flutuantes -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <div class="container-fluid animate-fade-in">
+        <div class="row justify-content-center align-items-center min-vh-100 py-5">
+            <div class="col-xl-4 col-lg-5 col-md-6 col-sm-8">
+                <div class="card login-card animate-slide-up">
+                    <div class="card-body p-5">
+                        <!-- Ícone e Título -->
+                        <div class="text-center mb-4">
+                            <span class="card-header-icon">👨‍💼</span>
+                            <h2 class="text-primary fw-bold mb-2">Login do Facilitador</h2>
+                            <p class="text-muted">Acesso restrito para facilitadores</p>
+                        </div>
+
+                        <!-- Alertas -->
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <div>@TempData["Error"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <!-- Formulário -->
+                        <form asp-action="FacilitatorLogin" method="post">
+                            <div class="mb-4">
+                                <label class="form-label">Senha do Facilitador</label>
+                                <input type="password" name="password" class="form-control form-control-lg"
+                                       placeholder="Digite a senha de acesso" required
+                                       autocomplete="current-password">
+                                <div class="form-text text-muted mt-2">
+                                    🔒 Acesso seguro e criptografado
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Entrar como Facilitador
+                                </button>
+
+                                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Voltar para o Início
+                                </a>
+                            </div>
+                        </form>
+
+                        <!-- Informações Adicionais -->
+                        <div class="text-center mt-4 pt-3 border-top">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Para obter acesso, entre em contato com a administração
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome para ícones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+</body>
+</html>

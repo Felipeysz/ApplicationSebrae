@@ -1,0 +1,499 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resultados Detalhados - Missão SEBRAE</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --bonus-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .team-icon {
+            font-size: 3rem;
+        }
+
+        .score-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .score-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+            .score-box h3 {
+                font-size: 2.5rem;
+                margin: 0.5rem 0;
+                font-weight: 800;
+            }
+
+        .round-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .round-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+            }
+
+            .round-card.correct::before {
+                background: var(--success-gradient);
+            }
+
+            .round-card.partial::before {
+                background: var(--warning-gradient);
+            }
+
+            .round-card.incorrect::before {
+                background: var(--danger-gradient);
+            }
+
+            .round-card.not-answered::before {
+                background: #6b7280;
+            }
+
+        .round-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .round-score {
+            font-size: 2rem;
+            font-weight: 800;
+            padding: 0.5rem 1.5rem;
+            border-radius: 15px;
+            color: white;
+        }
+
+            .round-score.correct {
+                background: var(--success-gradient);
+            }
+
+            .round-score.partial {
+                background: var(--warning-gradient);
+            }
+
+            .round-score.incorrect {
+                background: var(--danger-gradient);
+            }
+
+            .round-score.not-answered {
+                background: #6b7280;
+            }
+
+        .alternative-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .alternative-icon {
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-width: 25px;
+        }
+
+        .alternative-item.correct {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+        }
+
+            .alternative-item.correct .alternative-icon {
+                color: #10b981;
+            }
+
+        .alternative-item.wrong {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-color: #ef4444;
+        }
+
+            .alternative-item.wrong .alternative-icon {
+                color: #ef4444;
+            }
+
+        .alternative-item.missed {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f59e0b;
+        }
+
+            .alternative-item.missed .alternative-icon {
+                color: #f59e0b;
+            }
+
+        .alternative-item.not-selected {
+            background: #f9fafb;
+            border-color: #e5e7eb;
+        }
+
+            .alternative-item.not-selected .alternative-icon {
+                color: #9ca3af;
+            }
+
+        .explanation-box {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-left: 5px solid #667eea;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .vote-count-badge {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        @@media (max-width: 768px) {
+            .results-container
+
+        {
+            padding: 0 1rem;
+        }
+
+        .round-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .score-summary {
+            grid-template-columns: 1fr;
+        }
+
+        }</style>
+</head>
+<body>
+    <div class="results-container">
+        <!-- Loading -->
+        <div id="loading" class="loading-spinner">
+            <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="text-white mt-3">Carregando seus resultados...</p>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div id="results-content" style="display: none;">
+            <!-- Header -->
+            <div class="header-card">
+                <div class="team-info">
+                    <div class="team-icon" id="team-icon">🚀</div>
+                    <div>
+                        <h1 class="mb-0" id="team-name">Equipe A</h1>
+                        <p class="text-muted mb-0">Resultados Detalhados</p>
+                    </div>
+                </div>
+
+                <div class="score-summary">
+                    <div class="score-box">
+                        <i class="fas fa-trophy text-warning" style="font-size: 2rem;"></i>
+                        <h3 id="total-score" class="text-primary">0</h3>
+                        <p class="text-muted mb-0">Pontuação Total</p>
+                    </div>
+                    <div class="score-box">
+                        <i class="fas fa-star text-info" style="font-size: 2rem;"></i>
+                        <h3 id="max-score" class="text-secondary">0</h3>
+                        <p class="text-muted mb-0">Máximo Possível</p>
+                    </div>
+                    <div class="score-box">
+                        <i class="fas fa-check-circle text-success" style="font-size: 2rem;"></i>
+                        <h3 id="answered-rounds" class="text-success">0</h3>
+                        <p class="text-muted mb-0">Rodadas Respondidas</p>
+                    </div>
+                    <div class="score-box">
+                        <i class="fas fa-percentage text-danger" style="font-size: 2rem;"></i>
+                        <h3 id="accuracy-percentage" class="text-primary">0%</h3>
+                        <p class="text-muted mb-0">Aproveitamento</p>
+                    </div>
+                </div>
+
+                <!-- Legenda -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-icon" style="background: #d1fae5; color: #10b981;">✓</div>
+                        <span>Acertou - Resposta Correta</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon" style="background: #fee2e2; color: #ef4444;">✗</div>
+                        <span>Errou - Resposta Incorreta</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon" style="background: #fef3c7; color: #f59e0b;">!</div>
+                        <span>Não Marcou - Era Correta</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon" style="background: #f9fafb; color: #9ca3af;">—</div>
+                        <span>Não Selecionada</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados por Rodada -->
+            <div id="rounds-container"></div>
+
+            <!-- Botão Voltar -->
+            <div class="text-center mt-4">
+                <button onclick="window.history.back()" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Voltar ao Jogo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomCode = urlParams.get('roomCode');
+        const teamId = urlParams.get('teamId');
+
+        if (!roomCode || !teamId) {
+            alert('Informações da sala ou equipe não encontradas');
+            window.history.back();
+        }
+
+        async function loadResults() {
+            try {
+                const response = await fetch(`/Home/GetTeamDetailedResults?roomCode=${roomCode}&teamId=${teamId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert(data.message);
+                    window.history.back();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar resultados:', error);
+                alert('Erro ao carregar resultados');
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('team-icon').textContent = data.teamIcon;
+            document.getElementById('team-name').textContent = data.teamName;
+            document.getElementById('total-score').textContent = data.totalScore;
+            document.getElementById('max-score').textContent = data.maxPossibleScore;
+            document.getElementById('answered-rounds').textContent = `${data.answeredRounds}/${data.totalRounds}`;
+
+            const accuracy = data.maxPossibleScore > 0 ? ((data.totalScore / data.maxPossibleScore) * 100).toFixed(1) : 0;
+            document.getElementById('accuracy-percentage').textContent = `${accuracy}%`;
+
+            const container = document.getElementById('rounds-container');
+            container.innerHTML = '';
+
+            data.detailedResults.forEach(round => {
+                const roundCard = createRoundCard(round);
+                container.appendChild(roundCard);
+            });
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results-content').style.display = 'block';
+        }
+
+        function createRoundCard(round) {
+            const card = document.createElement('div');
+
+            let statusClass = 'not-answered';
+            let statusBadge = '<span class="badge bg-secondary">Não Respondida</span>';
+
+            if (!round.notAnswered) {
+                if (round.isFullyCorrect) {
+                    statusClass = 'correct';
+                    statusBadge = '<span class="badge bg-success">Resposta Perfeita! 🎉</span>';
+                } else if (round.isPartiallyCorrect) {
+                    statusClass = 'partial';
+                    statusBadge = '<span class="badge bg-warning">Resposta Parcial</span>';
+                } else {
+                    statusClass = 'incorrect';
+                    statusBadge = '<span class="badge bg-danger">Resposta Incorreta</span>';
+                }
+            }
+
+            card.className = `round-card ${statusClass}`;
+
+            // ✅ Renderizar alternativas com lógica simplificada
+            let alternativesHtml = '';
+            round.answersAnalysis.forEach(alt => {
+                let altClass = '';
+                let altIcon = '';
+                let altLabel = '';
+
+                if (alt.status === 'correct') {
+                    // ✅ Acertou - foi selecionada e era correta
+                    altClass = 'correct';
+                    altIcon = '✓';
+                    altLabel = `<span class="text-success fw-bold">Acertou!</span>`;
+                } else if (alt.status === 'wrong') {
+                    // ❌ Errou - foi selecionada mas era incorreta
+                    altClass = 'wrong';
+                    altIcon = '✗';
+                    altLabel = `<span class="text-danger fw-bold">Errou</span>`;
+                } else if (alt.status === 'missed') {
+                    // ⚠️ Não marcou mas era correta
+                    altClass = 'missed';
+                    altIcon = '!';
+                    altLabel = `<span class="text-warning fw-bold">Não marcou (era correta)</span>`;
+                } else {
+                    // — Não selecionada e não era correta
+                    altClass = 'not-selected';
+                    altIcon = '—';
+                    altLabel = '';
+                }
+
+                // ✅ Badge com contagem de votos
+                const voteCountBadge = alt.voteCount > 0
+                    ? `<span class="vote-count-badge">${alt.voteCount} voto(s)</span>`
+                    : '';
+
+                alternativesHtml += `
+                    <div class="alternative-item ${altClass}">
+                        <span class="alternative-icon">${altIcon}</span>
+                        <div class="flex-grow-1">
+                            <strong>${alt.index + 1}.</strong> ${alt.text}
+                            ${altLabel ? `<div class="mt-1">${altLabel}</div>` : ''}
+                        </div>
+                        ${voteCountBadge}
+                    </div>
+                `;
+            });
+
+            card.innerHTML = `
+                <div class="round-header">
+                    <div>
+                        <h3 class="mb-1">
+                            <i class="fas fa-folder-open me-2"></i>
+                            Rodada ${round.round}: ${round.dossierTitle}
+                        </h3>
+                        <p class="text-muted mb-0">${round.dossierName}</p>
+                    </div>
+                    <div class="round-score ${statusClass}">
+                        ${round.score}/${round.maxScore}
+                    </div>
+                </div>
+
+                ${statusBadge}
+
+                <h5 class="mt-4 mb-3">
+                    <i class="fas fa-list-check me-2"></i>
+                    Alternativas
+                </h5>
+                ${alternativesHtml}
+
+                ${round.explanation ? `
+                    <div class="explanation-box">
+                        <h6 class="mb-2">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Explicação
+                        </h6>
+                        <p class="mb-0">${round.explanation}</p>
+                    </div>
+                ` : ''}
+
+                ${round.totalVoters > 0 ? `
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>
+                            ${round.totalVoters} jogador(es) votaram nesta rodada
+                        </small>
+                    </div>
+                ` : ''}
+            `;
+
+            return card;
+        }
+
+        loadResults();
+    </script>
+</body>
+</html>

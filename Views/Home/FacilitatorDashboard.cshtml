@@ -1,0 +1,946 @@
+﻿@model ApplicationSebrae.ViewModels.FacilitatorDashboardViewModel
+@{
+    ViewData["Title"] = "Painel do Facilitador - Gerenciar Salas";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Missão SEBRAE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --hover-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        /* Estilos Base */
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 10% 20%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+                animation: floatBackground 20s ease-in-out infinite;
+            }
+
+        /* Cards Principais */
+        .main-card {
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .room-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .room-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--primary-gradient);
+            }
+
+            .room-card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: var(--hover-shadow);
+                background: white;
+            }
+
+        /* Estatísticas */
+        .stats-card {
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+            .stats-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--card-shadow);
+            }
+
+        /* Código da Sala */
+        .room-code {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5rem;
+            color: #3b82f6;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Badges de Status */
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Botões */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+
+        .btn-warning {
+            background: var(--warning-gradient);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal-content {
+            border: none;
+            border-radius: 25px;
+            box-shadow: var(--hover-shadow);
+        }
+
+        .modal-header {
+            border-radius: 25px 25px 0 0;
+            background: var(--primary-gradient);
+        }
+
+        /* Formulários */
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+                transform: translateY(-2px);
+            }
+
+        .form-check-input:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        /* Toast */
+        .toast {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Animações */
+        @@keyframes floatBackground {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.02);
+            }
+        }
+
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @@keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estados Vazios */
+        .empty-state {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            border: 2px dashed #cbd5e1;
+        }
+
+        /* Ícones */
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 3s infinite;
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Responsividade */
+        @@media (max-width: 768px) {
+            .room-code {
+                font-size: 2rem;
+                letter-spacing: 0.3rem;
+            }
+
+            .stats-card .display-4 {
+                font-size: 2.5rem;
+            }
+
+            .btn {
+                padding: 0.75rem 1.5rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .room-code {
+                font-size: 1.75rem;
+                letter-spacing: 0.2rem;
+            }
+
+            .container-fluid {
+                padding: 1rem;
+            }
+        }
+
+        /* Grid de Salas */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @@media (max-width: 1200px) {
+            .rooms-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid py-4 animate-pop">
+        <div class="main-card shadow-lg mb-4 animate-slide-up">
+            <div class="card-body p-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="h1 fw-bold text-primary mb-1">🎮 Painel do Facilitador</h2>
+                        <p class="text-muted mb-0">Gerencie suas salas de jogo e acompanhe o progresso das equipes</p>
+                    </div>
+                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+                        <i class="fas fa-plus me-2"></i>
+                        Nova Sala
+                    </button>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="row mb-4 g-3">
+                    <div class="col-md-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="feature-icon text-primary">🏢</div>
+                                <h5 class="text-muted mb-2">Salas Ativas</h5>
+                                <h2 class="display-4 fw-bold text-primary mb-0">@Model.ActiveRooms.Count</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="feature-icon text-success">👥</div>
+                                <h5 class="text-muted mb-2">Participantes Total</h5>
+                                <h2 class="display-4 fw-bold text-success mb-0">@Model.ActiveRooms.Sum(r => r.Teams.Count)</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stats-card h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="feature-icon text-danger">⚡</div>
+                                <h5 class="text-muted mb-2">Ações Rápidas</h5>
+                                <button class="btn btn-danger mt-2" onclick="confirmResetAll()">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Resetar Todas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Salas -->
+                @if (Model.ActiveRooms.Any())
+                {
+                    <div class="mb-4">
+                        <h4 class="fw-semibold mb-3 text-dark">📋 Salas Disponíveis</h4>
+                        <p class="text-muted">Clique em uma sala para gerenciar o jogo</p>
+                    </div>
+
+                    <div class="rooms-grid">
+                        @foreach (var room in Model.ActiveRooms)
+                        {
+                            <div class="card room-card">
+                                <div class="card-body p-4">
+                                    <!-- Header da Sala -->
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 class="fw-bold text-dark mb-0">@room.RoomName</h5>
+                                        <span class="badge status-badge @GetStatusBadgeClass(room.GameStatus)">
+                                            @GetStatusText(room.GameStatus)
+                                        </span>
+                                    </div>
+
+                                    <!-- Código da Sala -->
+                                    <div class="room-code text-center mb-3">@room.RoomCode</div>
+
+                                    <!-- ✅ NOVO: Indicador de Perguntas Personalizadas -->
+                                    @if (room.UseCustomDossiers)
+                                    {
+                                        <div class="alert alert-info p-2 mb-3">
+                                            <small>
+                                                <i class="fas fa-question-circle me-1"></i>
+                                                <strong>Perguntas Personalizadas:</strong> @room.CustomDossiers.Count pergunta(s)
+                                            </small>
+                                        </div>
+                                    }
+
+                                    <!-- Informações da Sala -->
+                                    <div class="room-info mb-3">
+                                        <div class="d-flex justify-content-between text-muted small mb-2">
+                                            <span>👥 @room.Teams.Count equipes</span>
+                                            <span>🎯 Rodada @(room.CurrentRound + 1)/@(room.UseCustomDossiers? room.CustomDossiers.Count : 6)</span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Criada: @room.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                    </div>
+
+                                    <!-- Ações -->
+                                    <div class="d-grid gap-2">
+                                        <!-- ✅ ATUALIZADO: Verificar se pode acessar o jogo -->
+                                        @if (room.UseCustomDossiers && room.CustomDossiers.Count == 0)
+                                        {
+                                            <!-- Bloquear acesso ao jogo -->
+                                            <a href="@Url.Action("ManageQuestions", "Room", new { roomCode = room.RoomCode })"
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-plus me-2"></i>
+                                                Adicionar Perguntas
+                                            </a>
+                                            <button class="btn btn-secondary btn-sm" disabled>
+                                                <i class="fas fa-lock me-2"></i>
+                                                Jogo Bloqueado
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <!-- Acesso normal ao jogo -->
+                                            <a href="@Url.Action("FacilitatorGame", new { roomCode = room.RoomCode })"
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-gamepad me-2"></i>
+                                                Gerenciar Jogo
+                                            </a>
+
+                                            @if (room.UseCustomDossiers)
+                                            {
+                                                <a href="@Url.Action("ManageQuestions", "Room", new { roomCode = room.RoomCode })"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-edit me-2"></i>
+                                                    Editar Perguntas
+                                                </a>
+                                            }
+                                        }
+
+                                        <div class="btn-group">
+                                            <button class="btn btn-warning btn-sm" onclick="resetRoom('@room.RoomCode')">
+                                                <i class="fas fa-sync me-2"></i>
+                                                Resetar
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteRoom('@room.RoomCode')">
+                                                <i class="fas fa-trash me-2"></i>
+                                                Excluir
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <!-- Estado Vazio -->
+                    <div class="empty-state text-center py-5 my-4">
+                        <div class="feature-icon">🎮</div>
+                        <h3 class="h2 text-muted mb-3">Nenhuma sala criada</h3>
+                        <p class="text-muted mb-4">Crie sua primeira sala para começar a jornada empreendedora!</p>
+                        <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+                            <i class="fas fa-plus me-2"></i>
+                            Criar Primeira Sala
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal - Criar Nova Sala -->
+    <div class="modal fade" id="createRoomModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-plus me-2"></i>
+                        Criar Nova Sala
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-room-form">
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Nome da Sala</label>
+                            <input type="text" class="form-control form-control-lg" id="room-name"
+                                   placeholder="Ex: Turma Manhã - 19/11/2024" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="use-custom-teams"
+                                       onchange="toggleCustomTeams()">
+                                <label class="form-check-label fw-semibold">Usar equipes personalizadas</label>
+                            </div>
+                        </div>
+
+                        <div id="custom-teams-section" style="display: none;">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="fw-semibold mb-3">👥 Equipes Personalizadas</h6>
+                                    <div id="teams-list">
+                                        <div class="team-input mb-2">
+                                            <div class="input-group">
+                                                <span class="input-group-text">🚀</span>
+                                                <input type="text" class="form-control" placeholder="Nome da Equipe 1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addTeamInput()">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Adicionar Equipe
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ✅ ATUALIZADO: Seção de perguntas personalizadas -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="use-custom-dossiers"
+                                       onchange="toggleCustomDossiers()">
+                                <label class="form-check-label fw-semibold">Usar perguntas personalizadas</label>
+                            </div>
+                        </div>
+
+                        <div id="custom-dossiers-section" style="display: none;">
+                            <div class="alert alert-warning">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-info-circle fa-2x me-3 text-warning"></i>
+                                    <div>
+                                        <h6 class="alert-heading mb-2">Como funciona:</h6>
+                                        <ol class="mb-2 small">
+                                            <li><strong>Crie a sala</strong> primeiro</li>
+                                            <li>Você será <strong>redirecionado automaticamente</strong> para adicionar suas perguntas</li>
+                                            <li>Crie <strong>pelo menos 1 pergunta</strong> para desbloquear o jogo</li>
+                                            <li>Você pode adicionar quantas perguntas quiser</li>
+                                        </ol>
+                                        <p class="mb-0 small">
+                                            <i class="fas fa-lightbulb me-1"></i>
+                                            <strong>Importante:</strong> O jogo só será liberado após você criar pelo menos uma pergunta.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="createRoom()">
+                        <i class="fas fa-check me-2"></i>
+                        Criar Sala
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast para notificações -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">Missão SEBRAE</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        // Variáveis globais para controle de atualização
+        let lastUpdateTime = null;
+        let isUpdating = false;
+
+        // Função para atualizar o dashboard
+        async function updateDashboard() {
+            if (isUpdating) return;
+
+            isUpdating = true;
+
+            try {
+                const response = await fetch('/Home/GetDashboardData');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateRoomsList(data.activeRooms);
+                    updateStatistics(data.stats);
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar dashboard:', error);
+            } finally {
+                isUpdating = false;
+            }
+        }
+
+        // Função para atualizar a lista de salas
+        function updateRoomsList(rooms) {
+            const roomsContainer = document.getElementById('rooms-container');
+            if (!roomsContainer) return;
+
+            let html = '';
+
+            rooms.forEach(room => {
+                html += `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card room-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">${room.roomName}</h5>
+                                <p class="card-text">
+                                    <strong>Código:</strong> ${room.roomCode}<br>
+                                    <strong>Equipes:</strong> ${room.connectedTeams}/${room.totalTeams}<br>
+                                    <strong>Status:</strong> <span class="badge ${getStatusBadgeClass(room.gameStatus)}">${room.gameStatus}</span><br>
+                                    <strong>Rodada:</strong> ${room.currentRound + 1}/${room.totalRounds}
+                                </p>
+                                <div class="d-grid gap-2">
+                                    <a href="/Home/FacilitatorGame?roomCode=${room.roomCode}" class="btn btn-primary">
+                                        <i class="fas fa-play me-2"></i>Gerenciar
+                                    </a>
+                                    <button onclick="confirmResetRoom('${room.roomCode}')" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-sync-alt me-2"></i>Reiniciar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            roomsContainer.innerHTML = html;
+        }
+
+        // Função para atualizar estatísticas
+        function updateStatistics(stats) {
+            // Atualizar contadores
+            const totalRoomsElement = document.getElementById('total-rooms');
+            const activeGamesElement = document.getElementById('active-games');
+            const totalPlayersElement = document.getElementById('total-players');
+
+            if (totalRoomsElement) totalRoomsElement.textContent = stats.totalRooms;
+            if (activeGamesElement) activeGamesElement.textContent = stats.activeGames;
+            if (totalPlayersElement) totalPlayersElement.textContent = stats.totalPlayers;
+        }
+
+        // Função auxiliar para classes de badge
+        function getStatusBadgeClass(status) {
+            const statusClasses = {
+                'setup': 'bg-secondary',
+                'presentation': 'bg-info',
+                'investigation': 'bg-success',
+                'results': 'bg-warning',
+                'finished': 'bg-dark'
+            };
+            return statusClasses[status] || 'bg-secondary';
+        }
+
+        // Iniciar atualização automática quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar a cada 5 segundos
+            setInterval(updateDashboard, 5000);
+
+            // Primeira atualização após 1 segundo
+            setTimeout(updateDashboard, 1000);
+        });
+
+        // Função para confirmar reset da sala
+        function confirmResetRoom(roomCode) {
+            if (confirm('Tem certeza que deseja reiniciar esta sala? Todos os dados serão perdidos.')) {
+                resetRoom(roomCode);
+            }
+        }
+
+        async function resetRoom(roomCode) {
+            try {
+                const response = await fetch('/Home/ResetRoom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode: roomCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Sala reiniciada com sucesso!', 'success');
+                    // Atualizar dashboard após reset
+                    setTimeout(updateDashboard, 1000);
+                } else {
+                    showNotification('Erro ao reiniciar sala: ' + data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao reiniciar sala:', error);
+                showNotification('Erro ao reiniciar sala', 'danger');
+            }
+        }
+
+        // Sistema de notificações
+        function showNotification(message, type = 'info') {
+            // Implementar sistema de toast/notificações
+            console.log(`${type.toUpperCase()}: ${message}`);
+            // Você pode usar um sistema de toast aqui
+        }
+    </script>
+
+    <script>
+        function toggleCustomTeams() {
+            const checkbox = document.getElementById('use-custom-teams');
+            const section = document.getElementById('custom-teams-section');
+            section.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function toggleCustomDossiers() {
+            const checkbox = document.getElementById('use-custom-dossiers');
+            const section = document.getElementById('custom-dossiers-section');
+            section.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function addTeamInput() {
+            const icons = ['🚀', '🌟', '💎', '⚡', '🔥', '🎯', '🏆', '💪'];
+            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+
+            const teamsList = document.getElementById('teams-list');
+            const teamCount = teamsList.children.length + 1;
+
+            const html = `
+                <div class="team-input mb-2">
+                    <div class="input-group">
+                        <span class="input-group-text">${randomIcon}</span>
+                        <input type="text" class="form-control" placeholder="Nome da Equipe ${teamCount}">
+                        <button class="btn btn-outline-danger" type="button" onclick="this.closest('.team-input').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            teamsList.insertAdjacentHTML('beforeend', html);
+        }
+
+        async function createRoom() {
+            const roomName = document.getElementById('room-name').value.trim();
+
+            if (!roomName) {
+                showNotification('Digite um nome para a sala', 'warning');
+                return;
+            }
+
+            const useCustomTeams = document.getElementById('use-custom-teams').checked;
+            const useCustomDossiers = document.getElementById('use-custom-dossiers').checked;
+
+            let customTeams = [];
+            if (useCustomTeams) {
+                const inputs = document.querySelectorAll('#teams-list input');
+                customTeams = Array.from(inputs)
+                    .map((input, index) => ({
+                        name: input.value.trim() || `Equipe ${index + 1}`,
+                        icon: input.previousElementSibling.textContent
+                    }))
+                    .filter(team => team.name);
+            }
+
+            try {
+                const response = await fetch('/Home/CreateRoom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomName: roomName,
+                        useCustomTeams: useCustomTeams,
+                        customTeams: customTeams,
+                        useCustomDossiers: useCustomDossiers
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(`Sala criada com sucesso! Código: ${data.roomCode}`, 'success');
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createRoomModal'));
+                    modal.hide();
+
+                    // ✅ NOVA LÓGICA: Redirecionar para ManageQuestions se usar perguntas personalizadas
+                    if (useCustomDossiers) {
+                        showNotification('Redirecionando para criação de perguntas...', 'info');
+                        setTimeout(() => {
+                            window.location.href = `/Room/ManageQuestions?roomCode=${data.roomCode}`;
+                        }, 1500);
+                    } else {
+                        // Se não usar perguntas personalizadas, apenas recarregar
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                } else {
+                    showNotification(data.message || 'Erro ao criar sala', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('Erro ao criar sala', 'danger');
+            }
+        }
+
+        async function resetRoom(roomCode) {
+            if (!confirm(`Deseja resetar a sala ${roomCode}? Todas as pontuações serão perdidas.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Home/ResetRoom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode: roomCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Sala resetada com sucesso!', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showNotification(data.message || 'Erro ao resetar sala', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('Erro ao resetar sala', 'danger');
+            }
+        }
+
+        async function deleteRoom(roomCode) {
+            if (!confirm(`Deseja EXCLUIR a sala ${roomCode}? Esta ação não pode ser desfeita.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Home/DeleteRoom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode: roomCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Sala excluída com sucesso!', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showNotification(data.message || 'Erro ao excluir sala', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('Erro ao excluir sala', 'danger');
+            }
+        }
+
+        function confirmResetAll() {
+            if (!confirm('Deseja RESETAR TODAS as salas? Todas as pontuações serão perdidas!')) {
+                return;
+            }
+
+            if (!confirm('Tem CERTEZA? Esta ação afetará todas as salas ativas.')) {
+                return;
+            }
+
+            resetAllRooms();
+        }
+
+        async function resetAllRooms() {
+            try {
+                const response = await fetch('/Home/ResetAllRooms', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Todas as salas foram resetadas!', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showNotification(data.message || 'Erro ao resetar salas', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('Erro ao resetar salas', 'danger');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notification-toast');
+            const toastBody = document.getElementById('toast-message');
+            const toastHeader = toast.querySelector('.toast-header');
+
+            toastHeader.className = `toast-header bg-${type} text-white`;
+            toastBody.textContent = message;
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+    </script>
+</body>
+</html>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "setup" => "bg-secondary",
+            "presentation" => "bg-info",
+            "investigation" => "bg-success",
+            "results" => "bg-warning",
+            "finished" => "bg-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "setup" => "Configuração",
+            "presentation" => "Apresentação",
+            "investigation" => "Investigação",
+            "results" => "Resultados",
+            "finished" => "Finalizado",
+            _ => "Aguardando"
+        };
+    }
+}
